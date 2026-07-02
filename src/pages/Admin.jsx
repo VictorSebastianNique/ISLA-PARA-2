@@ -1571,7 +1571,7 @@ export default function Admin() {
       </div>
       {/* Admin Auth Modal for Close Day */}
       {showCloseDayModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '400px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2 text-danger"><Lock size={20}/> Confirmar Cierre de Día</h2>

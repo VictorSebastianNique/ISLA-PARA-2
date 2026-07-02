@@ -445,7 +445,7 @@ export default function Cocina() {
       )}
 
       {confirmDispatch && (
-        <div className="modal animate-fade-in" style={{ display: 'flex', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, alignItems: 'center', justifyContent: 'center' }}>
+        <div className="modal animate-fade-in" style={{ display: 'flex', position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', zIndex: 1000, alignItems: 'center', justifyContent: 'center' }}>
           <div className="modal-content animate-slide-up" style={{ maxWidth: '400px', backgroundColor: 'var(--surface-color)', padding: '2rem', borderRadius: '1rem', border: '1px solid var(--border-color)', width: '90%' }}>
             <h3 style={{ marginTop: 0, color: 'var(--text-primary)', marginBottom: '1rem', fontSize: '1.2rem' }}>Confirmar Despacho</h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', lineHeight: '1.5' }}>¿Estás seguro que sale ese pedido?</p>
