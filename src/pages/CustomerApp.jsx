@@ -766,7 +766,7 @@ export default function CustomerApp() {
         )}
         {/* Item Details & Numpad Modal (Mozo Style) */}
         {pendingItem && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div className="card animate-fade-in" style={{ width: '90vw', maxWidth: '450px', maxHeight: '90vh', overflowY: 'auto' }}>
               <div className="flex justify-between items-center mb-4 pb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
                 <h2 className="title" style={{ fontSize: '1.25rem' }}>{pendingItem.name}</h2>

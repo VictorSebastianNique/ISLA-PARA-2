@@ -912,7 +912,7 @@ export default function Caja() {
 
       {/* ── BILLING MODAL ─────────────────────────────────────────── */}
       {selectedTable && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <div style={{ width: '90vw', maxWidth: '580px', maxHeight: '95vh', overflowY: 'auto', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', padding: '1.25rem', position: 'relative' }}
             className="animate-fade-in"
           >
@@ -1285,7 +1285,7 @@ export default function Caja() {
 
       {/* ── DISCOUNT MODAL ─────────────────────────────────────────── */}
       {showDiscountModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <div style={{ width: '90vw', maxWidth: '350px', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', padding: '1.25rem', position: 'relative' }} className="animate-fade-in">
             <h2 className="title" style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Aplicar Descuento</h2>
             <button className="btn btn-outline" style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.35rem' }} onClick={() => setShowDiscountModal(false)}><X size={15} /></button>
@@ -1321,7 +1321,7 @@ export default function Caja() {
 
       {/* ── FLOW MODAL (Ingresos/Egresos) ─────────────────────────────────────────── */}
       {showFlowModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <div style={{ width: '90vw', maxWidth: '400px', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', padding: '1.25rem', position: 'relative' }} className="animate-fade-in">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -1383,7 +1383,7 @@ export default function Caja() {
 
       {/* ── VIEW RECEIPT MODAL ────────────────────────────────────── */}
       {viewingReceiptDoc && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
             <h2 className="title" style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Detalle de Comprobante</h2>
             <p className="subtitle mb-4">
@@ -1408,7 +1408,7 @@ export default function Caja() {
 
       {/* ── SUCCESS MODAL ─────────────────────────────────────────── */}
       {paid && paidDoc && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.88)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '60px', height: '60px', borderRadius: '50%', backgroundColor: 'rgba(16,185,129,0.1)', color: 'var(--success-color)', marginBottom: '1rem' }}>
               <CheckCircle size={32} />
@@ -1438,7 +1438,7 @@ export default function Caja() {
 
       {/* ── DELIVERY APPROVAL MODAL ──────────────────────────────────────── */}
       {selectedDeliveryOrder && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
           <div className="card animate-fade-in" style={{ width: '100%', maxWidth: '400px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
               <h2 className="title" style={{ margin: 0, fontSize: '1.25rem', color: 'var(--text-primary)' }}>Aprobar Delivery</h2>

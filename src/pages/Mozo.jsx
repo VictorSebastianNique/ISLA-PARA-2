@@ -684,7 +684,7 @@ export default function Mozo() {
       </div>
 {/* V5: Table Auth Modal */}
       {pendingTableAuth && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="card animate-fade-in" style={{ width: '90vw', maxWidth: '400px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2"><Lock size={20}/> Acceso a la Mesa</h2>
@@ -738,7 +738,7 @@ export default function Mozo() {
 
       {/* V5: Add Item Details & Numpad Modal */}
       {pendingItem && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '90vw', maxWidth: '450px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="flex justify-between items-center mb-4 pb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
               <h2 className="title" style={{ fontSize: '1.25rem' }}>{pendingItem.name}</h2>
@@ -789,7 +789,7 @@ export default function Mozo() {
 
       {/* Admin Auth Modal for Voids */}
       {voidItemTarget && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '400px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2 text-danger"><Lock size={20}/> Autorización de Administrador</h2>
@@ -816,7 +816,7 @@ export default function Mozo() {
 
       {/* Headcount Modal */}
       {showHeadcountModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '350px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2"><UserIcon size={20}/> Número de Comensales</h2>

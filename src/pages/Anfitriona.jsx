@@ -233,7 +233,7 @@ export default function Anfitriona() {
 
       {/* Assignment Modal */}
       {selectedTable && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }}>
           <div className="rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200" style={{ backgroundColor: 'var(--surface-solid)', border: '1px solid var(--border-color)' }}>
             <div className="p-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)' }}>
               <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Mesa {selectedTable.tableNum} <span className="text-sm font-normal capitalize" style={{ color: 'var(--text-secondary)' }}>({selectedTable.zoneName})</span></h3>
