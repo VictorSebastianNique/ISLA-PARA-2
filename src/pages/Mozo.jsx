@@ -753,7 +753,7 @@ export default function Mozo() {
                 </div>
                 
                 {/* Numpad */}
-                <div className="grid grid-cols-3 gap-2 mt-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginTop: '1rem' }}>
                   {['1','2','3','4','5','6','7','8','9','C','0'].map(num => (
                     <button 
                       key={num} 
