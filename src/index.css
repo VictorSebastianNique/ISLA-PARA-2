@@ -9,8 +9,8 @@
    ============================================================ */
 :root {
   /* Fondos */
-  --bg-color:         #0a0f1e;
-  --bg-gradient:      radial-gradient(ellipse at top left, #0d1b2e 0%, #0a0f1e 50%, #080c18 100%);
+  --bg-color:         #0f172a;
+  --bg-gradient:      radial-gradient(ellipse at top left, #1e293b 0%, #0f172a 50%, #020617 100%);
   --surface-color:    rgba(255, 255, 255, 0.04);
   --surface-solid:    #111827;
   --surface-hover:    rgba(255, 255, 255, 0.08);
