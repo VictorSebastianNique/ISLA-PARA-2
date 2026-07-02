@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { Users, LogOut, CheckCircle, Clock, Trash2, Home } from 'lucide-react';
+import { Users, LogOut, CheckCircle, Clock, Trash2, Home, X } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 
 export default function Anfitriona() {
@@ -9,6 +9,13 @@ export default function Anfitriona() {
   const navigate = useNavigate();
   const [selectedTable, setSelectedTable] = useState(null);
   const [familyNameInput, setFamilyNameInput] = useState('');
+  const [selectedZoneId, setSelectedZoneId] = useState(null);
+
+  React.useEffect(() => {
+    if (zones && zones.length > 0 && !selectedZoneId) {
+      setSelectedZoneId(zones[0].id);
+    }
+  }, [zones, selectedZoneId]);
 
   // Authentication check
   React.useEffect(() => {
@@ -115,9 +122,31 @@ export default function Anfitriona() {
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--danger-color) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--danger-color) 30%, transparent)' }}></div> Ocupada (Comiendo)</div>
             </div>
 
-            {zones.map((zone) => (
-              <div key={zone.id} className="card p-4 sm:p-6 mb-6 relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-1 h-full bg-slate-700"></div>
+            {/* Tabs for zones */}
+            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar mb-4">
+              {zones.filter(z => z.active !== false).map((zone) => (
+                <button
+                  key={zone.id}
+                  onClick={() => setSelectedZoneId(zone.id)}
+                  className={`btn px-4 py-2 whitespace-nowrap transition-all duration-200`}
+                  style={{
+                    backgroundColor: selectedZoneId === zone.id ? 'var(--primary-color)' : 'transparent',
+                    color: selectedZoneId === zone.id ? '#fff' : 'var(--text-secondary)',
+                    borderColor: selectedZoneId === zone.id ? 'var(--primary-color)' : 'var(--border-color)',
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    borderRadius: '8px'
+                  }}
+                >
+                  {zone.name}
+                </button>
+              ))}
+            </div>
+
+            {/* Selected Zone map */}
+            {zones.filter(z => z.id === selectedZoneId).map((zone) => (
+              <div key={zone.id} className="card p-4 sm:p-6 mb-6 relative overflow-hidden animate-fade-in group">
+                <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: 'var(--primary-color)' }}></div>
                 <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2 capitalize">
                   {zone.name}
                 </h2>
