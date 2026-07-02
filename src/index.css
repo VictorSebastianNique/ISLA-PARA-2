@@ -419,9 +419,9 @@ h1, h2, h3, h4, h5, h6 {
    NAVEGACIÓN SUPERIOR (Glassmorphism)
    ============================================================ */
 .top-nav {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur-heavy);
-  -webkit-backdrop-filter: var(--glass-blur-heavy);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--glass-border);
   padding: 0.85rem 2rem;
   display: flex;
@@ -429,7 +429,7 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
   box-shadow: 0 4px 24px rgba(0,0,0,0.15);
   transition: var(--transition);
 }
