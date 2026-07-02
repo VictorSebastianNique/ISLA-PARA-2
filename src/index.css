@@ -70,10 +70,10 @@
   --border-radius-full: 9999px;
 
   /* Glassmorphism */
-  --glass-bg:         rgba(0, 0, 0, 0.40);
+  --glass-bg:         rgba(255, 255, 255, 0.05);
   --glass-border:     rgba(255, 255, 255, 0.10);
-  --glass-blur:       blur(8px);
-  --glass-blur-heavy: blur(8px);
+  --glass-blur:       blur(12px);
+  --glass-blur-heavy: blur(16px);
 
   /* Transiciones */
   --transition:       all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
