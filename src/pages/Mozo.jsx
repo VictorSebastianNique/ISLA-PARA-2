@@ -2,10 +2,12 @@ import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { ShoppingCart, Plus, Minus, Check, ChevronRight, X, Lock, User as UserIcon, Clock, UtensilsCrossed, Search, Printer } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Check, ChevronRight, X, Lock, User as UserIcon, Clock, UtensilsCrossed, Search, Printer, SplitSquareHorizontal } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import PageHeader from '../components/PageHeader';
+import SplitBillModal from '../components/SplitBillModal';
 import PrintReceipt from '../components/PrintReceipt';
+import PrintOptionModal from '../components/PrintOptionModal';
 
 export default function Mozo() {
   const { showAlert } = useAlert();
@@ -17,8 +19,14 @@ export default function Mozo() {
   
   const [docToPrint, setDocToPrint] = useState(null);
 
-  const handlePrintPrecuenta = () => {
+  const [showPrintOptionModal, setShowPrintOptionModal] = useState(false);
+
+  const triggerPrintPrecuenta = () => {
     if (!selectedTable || cart.length === 0) return;
+    setShowPrintOptionModal(true);
+  };
+
+  const handlePrintLocal = () => {
     const totalPagar = cart.reduce((sum, c) => sum + c.item.price * c.quantity, 0);
     const currentLocId = localStorage.getItem('currentLocationId');
     const currentLocation = locations?.find(l => l.id === currentLocId) || {};
@@ -35,7 +43,54 @@ export default function Mozo() {
     });
     setTimeout(() => {
       window.print();
-    }, 100);
+      setDocToPrint(null);
+    }, 300);
+  };
+
+  const handlePrintRemote = async () => {
+    try {
+      const currentLocId = localStorage.getItem('currentLocationId') || 'default';
+      const cajaAgentId = developerSettings?.printerIds?.[currentLocId]?.caja;
+      const printServerUrl = developerSettings?.printServerUrl;
+
+      if (!cajaAgentId || !printServerUrl) {
+        showAlert("Configura la URL del Servidor y el ID de la Caja en el Panel Developer primero.");
+        return;
+      }
+      
+      const itemsToPrint = cart.map(c => ({
+        name: c.item.name,
+        quantity: c.quantity,
+        price: c.item.price
+      }));
+      const totalToPrint = cart.reduce((sum, c) => sum + c.item.price * c.quantity, 0);
+      
+      const payload = {
+        locationId: currentLocId,
+        targetAgentId: cajaAgentId,
+        payload: {
+          documentType: 'precuenta',
+          orderData: {
+            table: `${selectedZone.name} - ${selectedTable}`,
+            waiter: currentUser.name,
+            total: totalToPrint,
+            items: itemsToPrint
+          }
+        }
+      };
+
+      const res = await fetch(`${printServerUrl}/dispatch-print`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      if (!res.ok) throw new Error("Error en el servidor central de impresión");
+      showAlert("Pre-cuenta enviada a Caja/Impresora Remota.");
+    } catch (e) {
+      console.error(e);
+      showAlert("No se pudo conectar al servidor de impresión en la nube.");
+    }
   };
   
   const [selectedZone, setSelectedZone] = useState(null);
@@ -56,6 +111,7 @@ export default function Mozo() {
   const [isNotesModalOpen, setIsNotesModalOpen] = useState(false);
   const [discountPin, setDiscountPin] = useState('');
   const [confirmReservationModal, setConfirmReservationModal] = useState(null);
+  const [showSplitBillModal, setShowSplitBillModal] = useState(false);
   const [itemQty, setItemQty] = useState('1');
   const [itemDetails, setItemDetails] = useState('');
 
@@ -606,9 +662,20 @@ export default function Mozo() {
           display: isMobile && mobileTab === 'menu' ? 'none' : 'flex',
           flexDirection: 'column'
         }}>
-          <div className="flex-none flex items-center gap-2 mb-4">
-            <ShoppingCart size={24} style={{ color: 'var(--primary-color)' }} />
-            <h2 className="title" style={{ fontSize: '1.25rem' }}>Cuenta {selectedTable ? selectedTable : ''}</h2>
+          <div className="flex-none flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <ShoppingCart size={24} style={{ color: 'var(--primary-color)' }} />
+              <h2 className="title" style={{ fontSize: '1.25rem' }}>Cuenta {selectedTable ? selectedTable : ''}</h2>
+            </div>
+            {cart.length > 0 && (
+              <button 
+                className="btn btn-outline" 
+                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} 
+                onClick={() => setShowSplitBillModal(true)}
+              >
+                <SplitSquareHorizontal size={16} style={{ marginRight: '0.4rem' }}/> Cuentas
+              </button>
+            )}
           </div>
 
           {/* Scrollable items box */}
@@ -618,24 +685,38 @@ export default function Mozo() {
                 Selecciona una mesa y añade productos.
               </div>
             ) : (
-              cart.map(c => (
-                <div key={c.id} className="flex flex-col gap-1 p-3 mb-3" style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', backgroundColor: 'var(--bg-color)', position: 'relative' }}>
-                  <div className="flex justify-between items-center">
-                    <h4 style={{ fontWeight: 500, fontSize: '0.9rem' }}>{c.quantity || 1}x {c.item.name}</h4>
-                    <p className="subtitle" style={{ color: 'var(--primary-color)' }}>S/{(c.item.price * (c.quantity || 1)).toFixed(2)}</p>
+              Object.entries(
+                cart.reduce((acc, c) => {
+                  const accName = c.accountName || 'Cuenta Principal';
+                  if (!acc[accName]) acc[accName] = [];
+                  acc[accName].push(c);
+                  return acc;
+                }, {})
+              ).map(([accName, items]) => (
+                <div key={accName} style={{ marginBottom: '1.5rem' }}>
+                  <div style={{ padding: '0.5rem', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius-sm)', marginBottom: '0.75rem', borderLeft: '3px solid var(--primary-color)' }}>
+                    <h3 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-primary)' }}>{accName}</h3>
                   </div>
-                  
-                  {c.details && <p style={{ fontSize: '0.8rem', color: 'var(--warning-color)', fontStyle: 'italic', marginBottom: '0.2rem' }}>Nota: {c.details}</p>}
-                  
-                  <div className="flex justify-between items-center mt-1">
-                    <span className="subtitle" style={{ fontSize: '0.8rem' }}>S/{c.item.price.toFixed(2)} c/u</span>
-                    <div className="flex items-center gap-3">
-                      <button className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', borderColor: c.status === 'sent' ? 'var(--danger-color)' : 'var(--border-color)', color: c.status === 'sent' ? 'var(--danger-color)' : 'inherit' }} onClick={() => removeFromCart(c)}>
-                        {c.status === 'sent' ? 'Eliminar' : 'Quitar'}
-                      </button>
+                  {items.map(c => (
+                    <div key={c.id} className="flex flex-col gap-1 p-3 mb-3" style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', backgroundColor: 'var(--bg-color)', position: 'relative' }}>
+                      <div className="flex justify-between items-center">
+                        <h4 style={{ fontWeight: 500, fontSize: '0.9rem' }}>{c.quantity || 1}x {c.item.name}</h4>
+                        <p className="subtitle" style={{ color: 'var(--primary-color)' }}>S/{(c.item.price * (c.quantity || 1)).toFixed(2)}</p>
+                      </div>
+                      
+                      {c.details && <p style={{ fontSize: '0.8rem', color: 'var(--warning-color)', fontStyle: 'italic', marginBottom: '0.2rem' }}>Nota: {c.details}</p>}
+                      
+                      <div className="flex justify-between items-center mt-1">
+                        <span className="subtitle" style={{ fontSize: '0.8rem' }}>S/{c.item.price.toFixed(2)} c/u</span>
+                        <div className="flex items-center gap-3">
+                          <button className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', borderColor: c.status === 'sent' ? 'var(--danger-color)' : 'var(--border-color)', color: c.status === 'sent' ? 'var(--danger-color)' : 'inherit' }} onClick={() => removeFromCart(c)}>
+                            {c.status === 'sent' ? 'Eliminar' : 'Quitar'}
+                          </button>
+                        </div>
+                      </div>
+                      {c.status === 'sent' && <span style={{ position: 'absolute', top: '-10px', right: '-10px', backgroundColor: 'var(--primary-color)', color: '#000', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '10px', fontWeight: 'bold' }}>ENVIADO</span>}
                     </div>
-                  </div>
-                  {c.status === 'sent' && <span style={{ position: 'absolute', top: '-10px', right: '-10px', backgroundColor: 'var(--primary-color)', color: '#000', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '10px', fontWeight: 'bold' }}>ENVIADO</span>}
+                  ))}
                 </div>
               ))
             )}
@@ -672,7 +753,7 @@ export default function Mozo() {
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4, marginBottom: '0.5rem' }}>
                     Imprima la pre-cuenta para entregar al cliente.
                   </span>
-                  <button className="btn btn-outline w-full" onClick={handlePrintPrecuenta} style={{ fontSize: '0.9rem', justifyContent: 'center', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
+                  <button className="btn btn-outline w-full" onClick={triggerPrintPrecuenta} style={{ fontSize: '0.9rem', justifyContent: 'center', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }}>
                     <Printer size={16} style={{ marginRight: '0.5rem' }}/> Imprimir Pre-cuenta
                   </button>
                 </div>
@@ -840,6 +921,23 @@ export default function Mozo() {
       )}
 
       {docToPrint && <PrintReceipt doc={docToPrint} />}
+      {/* V5: Split Bill Modal */}
+      <SplitBillModal 
+        isOpen={showSplitBillModal} 
+        onClose={() => setShowSplitBillModal(false)}
+        tableKey={tableKey}
+        tableName={selectedTable}
+      />
+      {docToPrint && <PrintReceipt doc={docToPrint} />}
+
+      {/* Print Option Modal */}
+      {showPrintOptionModal && (
+        <PrintOptionModal 
+          onClose={() => setShowPrintOptionModal(false)}
+          onPrintLocal={handlePrintLocal}
+          onPrintRemote={handlePrintRemote}
+        />
+      )}
     </div>
   );
 }

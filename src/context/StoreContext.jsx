@@ -339,6 +339,38 @@ export const StoreProvider = ({ children }) => {
     setActiveTables(prev => ({ ...prev, [tableKey]: cart }));
   };
 
+  const splitTableItem = (tableKey, cartItemId, quantityToMove, targetAccountName) => {
+    setActiveTables(prev => {
+      const cart = prev[tableKey];
+      if (!cart) return prev;
+      
+      const itemIndex = cart.findIndex(c => c.id === cartItemId);
+      if (itemIndex === -1) return prev;
+      
+      const itemToSplit = cart[itemIndex];
+      if (quantityToMove <= 0 || quantityToMove > itemToSplit.quantity) return prev;
+      
+      const newCart = [...cart];
+      
+      if (quantityToMove === itemToSplit.quantity) {
+        // Mover todo el ítem
+        newCart[itemIndex] = { ...itemToSplit, accountName: targetAccountName };
+      } else {
+        // Dividir la cantidad
+        newCart[itemIndex] = { ...itemToSplit, quantity: itemToSplit.quantity - quantityToMove };
+        newCart.push({
+          ...itemToSplit,
+          id: uuidv4(),
+          quantity: quantityToMove,
+          accountName: targetAccountName,
+          timestamp: Date.now()
+        });
+      }
+      
+      return { ...prev, [tableKey]: newCart };
+    });
+  };
+
   const sendTableOrders = (tableKey, cart, zoneName, tableNum, waiterName) => {
     // 1. Mark items as sent in the table's persistent account
     const newCart = cart.map(c => ({ ...c, status: 'sent' }));
@@ -832,7 +864,7 @@ if (barCart.length > 0) {
       isBarActive, setIsBarActive,
       businessDay, setBusinessDay, pastDays, setPastDays, openDay, closeDay, openCaja, closeCaja,
       addIncome, addExpense,
-      activeTables, setActiveTables, updateTableCart, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable, issueCreditNote,
+      activeTables, setActiveTables, updateTableCart, splitTableItem, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable, issueCreditNote,
       tableHeadcounts, setTableHeadcounts,
       companies, addCompany: addItem(setCompanies), updateCompany: updateItem(setCompanies), deleteCompany: deleteItem(setCompanies),
       developerSettings, setDeveloperSettings,

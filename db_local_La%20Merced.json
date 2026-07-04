@@ -399,6 +399,87 @@
           "details": "",
           "status": "new",
           "timestamp": 1782981165370
+        },
+        {
+          "id": "d0a81db8-3c33-4ca0-8177-a3a2b3427d4c",
+          "item": {
+            "name": "1/2 LECHE DE TIGRE",
+            "price": 22,
+            "categoryId": "c3",
+            "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+            "id": "6eb10564-b4cb-4fb7-b116-20fa985c1d27",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1783153002305
+        },
+        {
+          "id": "d52590be-08e3-41ba-bd47-9e0abfc1170f",
+          "item": {
+            "name": "CAUSA DE POLLO",
+            "price": 32,
+            "categoryId": "c3",
+            "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+            "id": "77b5701a-aea2-4e11-8a45-12a4e66a52ab",
+            "active": true,
+            "kardexRecipe": [
+              {
+                "kardexId": "k_filete_pollo",
+                "qty": 1
+              }
+            ]
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1783153003313
+        },
+        {
+          "id": "979b3e41-28a5-40d2-818f-f60412514d00",
+          "item": {
+            "name": "TRIO DE CAUSAS",
+            "price": 37,
+            "categoryId": "c3",
+            "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+            "id": "3d90e7ed-a2ff-44b3-a651-cdda47ea686f",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1783153004866
+        },
+        {
+          "id": "92ae7167-17b5-4ffe-bd1b-2befc103c9b3",
+          "item": {
+            "name": "COCTEL DE LANGOSTINOS",
+            "price": 39,
+            "categoryId": "c3",
+            "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+            "id": "79189eb6-2da3-4e5c-a73e-6e5afae78d34",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1783153006546
+        },
+        {
+          "id": "a4cf480e-da2b-4d25-8a7b-2fdcc324353b",
+          "item": {
+            "name": "CORIVNA SUDADA",
+            "price": 52,
+            "categoryId": "c3",
+            "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+            "id": "145d0e47-23ba-47e0-a1e6-75a0f750f0ee",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1783153007922
         }
       ],
       "station": "cocina",
@@ -442,6 +523,37 @@
           "details": "",
           "status": "new",
           "timestamp": 1782981160760
+        },
+        {
+          "id": "9328b42c-5471-44f4-be23-a3c744fc16ef",
+          "item": {
+            "name": "HEINEKEN",
+            "price": 12,
+            "categoryId": "c1",
+            "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+            "noDiscount": false,
+            "id": "1782006465546",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1783152972954
+        },
+        {
+          "id": "ad2eeee5-dca1-4796-9d10-a8f2f8c27c91",
+          "item": {
+            "name": "CHEESECAKE DE FRESA",
+            "price": 16,
+            "categoryId": "c2",
+            "subcategoryId": "",
+            "id": "c72213e7-f0e5-4ce3-9c3a-b176e3a588da",
+            "active": true
+          },
+          "quantity": 1,
+          "details": "",
+          "status": "new",
+          "timestamp": 1783152998411
         }
       ],
       "station": "bar",
@@ -588,7 +700,92 @@
       "aperturaDiferencia": 0,
       "aperturaJustificacion": ""
     },
-    "kardex": {}
+    "kardex": {
+      "k_tamales": {
+        "inicial": 1,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_humitas": {
+        "inicial": 2,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_sangrecita": {
+        "inicial": 3,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_aji_gallina": {
+        "inicial": 4,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_cecina": {
+        "inicial": 5,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_caldo_gallina": {
+        "inicial": 50,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_adobo": {
+        "inicial": 5,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_asado": {
+        "inicial": 5,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_cuy": {
+        "inicial": 5,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_arroz_pato": {
+        "inicial": 5,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_chicharron_pollo": {
+        "inicial": 20,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      },
+      "k_pulpo_olivo": {
+        "inicial": 50,
+        "ingresos": 0,
+        "mermas": 0,
+        "observacion": "",
+        "ventas": 0
+      }
+    }
   },
   "pastDays": [
     {
@@ -1209,8 +1406,131 @@
       "endTime": 1782980086388
     }
   ],
-  "activeTables": {},
-  "tableHeadcounts": {},
+  "activeTables": {
+    "13aa6581-660e-4041-887a-cc068b1acb85-E2": [
+      {
+        "id": "9328b42c-5471-44f4-be23-a3c744fc16ef",
+        "item": {
+          "name": "HEINEKEN",
+          "price": 12,
+          "categoryId": "c1",
+          "subcategoryId": "240f39fd-d5b7-4cc8-a9d5-cfd07027c086",
+          "noDiscount": false,
+          "id": "1782006465546",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1783152972954,
+        "accountName": "Gabriela"
+      },
+      {
+        "id": "ad2eeee5-dca1-4796-9d10-a8f2f8c27c91",
+        "item": {
+          "name": "CHEESECAKE DE FRESA",
+          "price": 16,
+          "categoryId": "c2",
+          "subcategoryId": "",
+          "id": "c72213e7-f0e5-4ce3-9c3a-b176e3a588da",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1783152998411,
+        "accountName": "Diana"
+      },
+      {
+        "id": "d0a81db8-3c33-4ca0-8177-a3a2b3427d4c",
+        "item": {
+          "name": "1/2 LECHE DE TIGRE",
+          "price": 22,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "6eb10564-b4cb-4fb7-b116-20fa985c1d27",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1783153002305,
+        "accountName": "Andre"
+      },
+      {
+        "id": "d52590be-08e3-41ba-bd47-9e0abfc1170f",
+        "item": {
+          "name": "CAUSA DE POLLO",
+          "price": 32,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "77b5701a-aea2-4e11-8a45-12a4e66a52ab",
+          "active": true,
+          "kardexRecipe": [
+            {
+              "kardexId": "k_filete_pollo",
+              "qty": 1
+            }
+          ]
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1783153003313
+      },
+      {
+        "id": "979b3e41-28a5-40d2-818f-f60412514d00",
+        "item": {
+          "name": "TRIO DE CAUSAS",
+          "price": 37,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "3d90e7ed-a2ff-44b3-a651-cdda47ea686f",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1783153004866,
+        "accountName": "Andre"
+      },
+      {
+        "id": "92ae7167-17b5-4ffe-bd1b-2befc103c9b3",
+        "item": {
+          "name": "COCTEL DE LANGOSTINOS",
+          "price": 39,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "79189eb6-2da3-4e5c-a73e-6e5afae78d34",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1783153006546,
+        "accountName": "Andre"
+      },
+      {
+        "id": "a4cf480e-da2b-4d25-8a7b-2fdcc324353b",
+        "item": {
+          "name": "CORIVNA SUDADA",
+          "price": 52,
+          "categoryId": "c3",
+          "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
+          "id": "145d0e47-23ba-47e0-a1e6-75a0f750f0ee",
+          "active": true
+        },
+        "quantity": 1,
+        "details": "",
+        "status": "sent",
+        "timestamp": 1783153007922,
+        "accountName": "Gabriela"
+      }
+    ]
+  },
+  "tableHeadcounts": {
+    "13aa6581-660e-4041-887a-cc068b1acb85-E2": 2
+  },
   "companies": [
     {
       "name": "VICTOR ANDRE SEBASTIAN ÑIQUE",
