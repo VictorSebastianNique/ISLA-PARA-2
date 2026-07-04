@@ -17,7 +17,7 @@ const IGV_RATE = 0.18;
 export default function Caja() {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
-  const { businessDay, activeTables, orders, users, currentUser, logout, openCaja, closeCaja, addIncome, addExpense, payTable, updateTableCart, voidTableItem, voidSaleAndReopenTable, companies, issueCreditNote, locations, splitTableItem } = useStore();
+  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, pastDays, orders, setOrders, addIncome, addExpense, developerSettings, users, logAudit, locations, updateOrderStatus, openCaja, closeCaja, menu, updateTableCart, voidTableItem, voidSaleAndReopenTable, issueCreditNote, splitTableItem } = useStore();
 
   const [selectedZone, setSelectedZone] = useState('all');
   
@@ -293,7 +293,7 @@ export default function Caja() {
 
   const handlePrintLocal = () => {
     if (printOptionPayload?.type === 'precuenta') {
-      const selectedTable = selectedTableKey ? activeTables[selectedTableKey] : null;
+      const selectedTable = selectedTableKey ? allActiveTables.find(t => t.key === selectedTableKey) : null;
       if (!selectedTable) return;
       const tableCart = selectedTable.cart || [];
       const itemsToPrint = tableCart.filter(c => selectedItemIds.includes(c.id));
@@ -303,7 +303,7 @@ export default function Caja() {
       }
       const doc = {
         documentType: 'precuenta',
-        tableNumber: selectedTable.number,
+        tableNumber: selectedTable.table,
         totalPagar: itemsToPrint.reduce((acc, c) => acc + (c.item.price * (selectedQuantities[c.id] || c.quantity)), 0),
         cartDetails: itemsToPrint.map(c => ({ item: c.item, quantity: (selectedQuantities[c.id] || c.quantity), price: c.item.price }))
       };
@@ -327,7 +327,7 @@ export default function Caja() {
       
       let payload = null;
       if (printOptionPayload?.type === 'precuenta') {
-        const selectedTable = selectedTableKey ? activeTables[selectedTableKey] : null;
+        const selectedTable = selectedTableKey ? allActiveTables.find(t => t.key === selectedTableKey) : null;
         if (!selectedTable) return;
         const tableCart = selectedTable.cart || [];
         const itemsToPrint = tableCart.filter(c => selectedItemIds.includes(c.id)).map(c => ({
@@ -345,7 +345,7 @@ export default function Caja() {
           targetAgentId: cajaAgentId,
           payload: {
             documentType: 'precuenta',
-            orderData: { table: selectedTable.number, waiter: selectedTable.waiter || 'Caja', customerName, total: totalToPrint, items: itemsToPrint }
+            orderData: { table: selectedTable.table, waiter: selectedTable.waiter || 'Caja', customerName, total: totalToPrint, items: itemsToPrint }
           }
         };
       } else if (printOptionPayload?.type === 'comprobante') {
