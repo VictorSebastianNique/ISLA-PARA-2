@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { v4 as uuidv4 } from 'uuid';
@@ -30,6 +30,14 @@ function SplitBillManager({ cart, tableKey, tableName, onClose, splitTableItem }
   // State for multiple selected items: { itemId: quantityToMove }
   const [selectedItems, setSelectedItems] = useState({});
   const [targetAccount, setTargetAccount] = useState('');
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Agrupar ítems
   const accountGroups = {};
@@ -85,18 +93,18 @@ function SplitBillManager({ cart, tableKey, tableName, onClose, splitTableItem }
   const selectedCount = Object.keys(selectedItems).length;
 
   return (
-    <div className="card" style={{ width: '100%', maxWidth: '900px', height: '85vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--surface-solid)', padding: 0 }}>
-      <div style={{ padding: '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="card" style={{ width: '100%', maxWidth: isMobile ? '100vw' : '900px', height: isMobile ? '100vh' : '85vh', borderRadius: isMobile ? 0 : 'var(--border-radius)', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--surface-solid)', padding: 0 }}>
+      <div style={{ padding: isMobile ? '1rem' : '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 600 }}>Cuentas Separadas - {tableName}</h2>
         <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
           <X size={24} />
         </button>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', overflow: 'hidden' }}>
         
         {/* Lado izquierdo */}
-        <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', borderRight: '1px solid var(--border-color)' }}>
+        <div style={{ flex: 1, padding: isMobile ? '1rem' : '1.5rem', overflowY: 'auto', borderRight: isMobile ? 'none' : '1px solid var(--border-color)', borderBottom: isMobile ? '1px solid var(--border-color)' : 'none' }}>
           <h3 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>
             Productos por Cuenta
           </h3>
@@ -151,7 +159,7 @@ function SplitBillManager({ cart, tableKey, tableName, onClose, splitTableItem }
         </div>
 
         {/* Lado derecho */}
-        <div style={{ width: '400px', padding: '1.5rem', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--surface-color)' }}>
+        <div style={{ width: isMobile ? '100%' : '400px', flex: isMobile ? 1 : 'none', padding: isMobile ? '1rem' : '1.5rem', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--surface-color)', overflowY: isMobile ? 'auto' : 'visible' }}>
           <h3 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-secondary)', fontSize: '0.9rem', textTransform: 'uppercase' }}>Gestión de División</h3>
           
           <form onSubmit={handleCreateAccount} style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
