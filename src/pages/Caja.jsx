@@ -2,7 +2,7 @@ import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer, FileDown, AlertTriangle } from 'lucide-react';
+import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Users, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer, FileDown, AlertTriangle } from 'lucide-react';
 import UserManagement from '../components/UserManagement';
 import { v4 as uuidv4 } from 'uuid';
 import PrintReceipt from '../components/PrintReceipt';
