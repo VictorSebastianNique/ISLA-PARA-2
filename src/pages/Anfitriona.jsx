@@ -12,6 +12,14 @@ export default function Anfitriona() {
   const [selectedZoneId, setSelectedZoneId] = useState(null);
   const [viewMode, setViewMode] = useState('mesas'); // 'mesas' | 'asignadas'
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
+  
+  React.useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   React.useEffect(() => {
     if (zones && zones.length > 0 && !selectedZoneId) {
       setSelectedZoneId(zones[0].id);
@@ -114,41 +122,47 @@ export default function Anfitriona() {
       />
 
       {/* Mobile Toggle */}
-      <div className="lg:hidden flex border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--surface-color)' }}>
-        <button 
-          className={`flex-1 py-3 text-sm font-bold ${viewMode === 'mesas' ? 'border-b-2' : ''}`}
-          style={{ 
-            color: viewMode === 'mesas' ? 'var(--primary-color)' : 'var(--text-secondary)',
-            borderColor: viewMode === 'mesas' ? 'var(--primary-color)' : 'transparent'
-          }}
-          onClick={() => setViewMode('mesas')}
-        >
-          Plano de Mesas
-        </button>
-        <button 
-          className={`flex-1 py-3 text-sm font-bold ${viewMode === 'asignadas' ? 'border-b-2' : ''}`}
-          style={{ 
-            color: viewMode === 'asignadas' ? 'var(--primary-color)' : 'var(--text-secondary)',
-            borderColor: viewMode === 'asignadas' ? 'var(--primary-color)' : 'transparent'
-          }}
-          onClick={() => setViewMode('asignadas')}
-        >
-          Asignaciones ({assignedFamilies.length})
-        </button>
-      </div>
+      {isMobile && (
+        <div className="flex" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)' }}>
+          <button 
+            className="flex-1"
+            style={{ 
+              padding: '0.75rem 0', fontSize: '0.9rem', fontWeight: 600,
+              color: viewMode === 'mesas' ? 'var(--primary-color)' : 'var(--text-secondary)',
+              borderBottom: viewMode === 'mesas' ? '2px solid var(--primary-color)' : '2px solid transparent',
+              backgroundColor: 'transparent'
+            }}
+            onClick={() => setViewMode('mesas')}
+          >
+            Plano de Mesas
+          </button>
+          <button 
+            className="flex-1"
+            style={{ 
+              padding: '0.75rem 0', fontSize: '0.9rem', fontWeight: 600,
+              color: viewMode === 'asignadas' ? 'var(--primary-color)' : 'var(--text-secondary)',
+              borderBottom: viewMode === 'asignadas' ? '2px solid var(--primary-color)' : '2px solid transparent',
+              backgroundColor: 'transparent'
+            }}
+            onClick={() => setViewMode('asignadas')}
+          >
+            Asignaciones ({assignedFamilies.length})
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-1" style={{ minHeight: 0, overflow: 'hidden' }}>
         {/* Main Map Area */}
-        <div className={`flex-1 overflow-y-auto p-4 sm:p-6 ${viewMode === 'mesas' ? 'block' : 'hidden lg:block'}`}>
-          <div className="max-w-5xl mx-auto space-y-6 pb-20">
-            <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex-1" style={{ padding: isMobile ? '1rem' : '1.5rem', overflowY: 'auto', display: (!isMobile || viewMode === 'mesas') ? 'block' : 'none' }}>
+          <div style={{ maxWidth: '1024px', margin: '0 auto', paddingBottom: '5rem' }}>
+            <div className="flex flex-wrap" style={{ gap: '1rem', marginBottom: '1rem' }}>
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--success-color) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--success-color) 20%, transparent)' }}></div> Libre</div>
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--info-color) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--info-color) 30%, transparent)' }}></div> Reservada (Esperando pedido)</div>
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--danger-color) 15%, transparent)', border: '1px solid color-mix(in srgb, var(--danger-color) 30%, transparent)' }}></div> Ocupada (Comiendo)</div>
             </div>
 
             {/* Tabs for zones */}
-            <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar mb-4">
+            <div className="flex custom-scrollbar" style={{ gap: '0.5rem', overflowX: 'auto', paddingBottom: '0.5rem', marginBottom: '1rem' }}>
               {zones.filter(z => z.active !== false).map((zone) => (
                 <button
                   key={zone.id}
@@ -170,12 +184,12 @@ export default function Anfitriona() {
 
             {/* Selected Zone map */}
             {zones.filter(z => z.id === selectedZoneId).map((zone) => (
-              <div key={zone.id} className="card p-4 sm:p-6 mb-6 relative overflow-hidden animate-fade-in group">
-                <div className="absolute top-0 left-0 w-1 h-full" style={{ backgroundColor: 'var(--primary-color)' }}></div>
-                <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2 capitalize">
+              <div key={zone.id} className="card relative animate-fade-in group" style={{ padding: isMobile ? '1rem' : '1.5rem', marginBottom: '1.5rem', overflow: 'hidden' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, width: '4px', height: '100%', backgroundColor: 'var(--primary-color)' }}></div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: 'white', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', textTransform: 'capitalize' }}>
                   {zone.name}
                 </h2>
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '0.75rem' }}>
                   {zone.tables && zone.tables.map((tableName, idx) => {
                     const key = `${zone.id}-${tableName}`;
                     const family = tableFamilies[key];
@@ -185,18 +199,18 @@ export default function Anfitriona() {
                       <button
                         key={idx}
                         onClick={() => handleTableClick(zone.id, tableName)}
-                        className={`
-                          relative p-4 rounded-xl border text-center transition-all duration-300
-                          shadow-sm flex flex-col items-center justify-center
-                        `}
-                        style={{ minHeight: '100px', ...getTableStyle(key) }}
+                        className="card-btn flex flex-col items-center justify-center"
+                        style={{ 
+                          position: 'relative', padding: '1rem', borderRadius: '12px', border: '1px solid', textAlign: 'center', transition: 'all 0.3s', 
+                          minHeight: '100px', ...getTableStyle(key) 
+                        }}
                       >
-                        <span className="text-2xl font-black mb-1">{tableName}</span>
+                        <span style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '0.25rem' }}>{tableName}</span>
                         {family && (
-                          <div className="absolute bottom-2 left-0 w-full px-1">
+                          <div style={{ position: 'absolute', bottom: '8px', left: 0, width: '100%', padding: '0 4px' }}>
                             <div 
-                              className="text-[10px] font-bold truncate px-1 rounded-full" 
                               style={{ 
+                                fontSize: '0.65rem', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: '0 4px', borderRadius: '9999px',
                                 backgroundColor: occupied ? 'color-mix(in srgb, var(--danger-color) 30%, transparent)' : 'color-mix(in srgb, var(--info-color) 30%, transparent)', 
                                 color: occupied ? 'var(--danger-color)' : 'var(--info-color)' 
                               }}
@@ -215,38 +229,38 @@ export default function Anfitriona() {
         </div>
 
         {/* Sidebar */}
-        <div className={`w-full lg:w-80 flex-col shadow-xl z-10 relative ${viewMode === 'asignadas' ? 'flex' : 'hidden lg:flex'}`} style={{ backgroundColor: 'var(--surface-solid)', borderLeft: '1px solid var(--border-color)' }}>
-          <div className="p-4 sticky top-0 z-10" style={{ backgroundColor: 'var(--surface-color)', borderBottom: '1px solid var(--border-color)' }}>
-            <h3 className="font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}><Users size={18} className="text-primary" /> Mesas Asignadas</h3>
-            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Lista en vivo de familias</p>
+        <div className="flex-col relative z-10" style={{ width: isMobile ? '100%' : '320px', display: (!isMobile || viewMode === 'asignadas') ? 'flex' : 'none', backgroundColor: 'var(--surface-solid)', borderLeft: '1px solid var(--border-color)', boxShadow: '-4px 0 15px rgba(0,0,0,0.1)' }}>
+          <div style={{ padding: '1rem', position: 'sticky', top: 0, zIndex: 10, backgroundColor: 'var(--surface-color)', borderBottom: '1px solid var(--border-color)' }}>
+            <h3 className="flex items-center" style={{ fontWeight: 'bold', gap: '0.5rem', color: 'var(--text-primary)', margin: 0 }}><Users size={18} style={{ color: 'var(--primary-color)' }} /> Mesas Asignadas</h3>
+            <p style={{ fontSize: '0.75rem', marginTop: '0.25rem', color: 'var(--text-secondary)' }}>Lista en vivo de familias</p>
           </div>
-          <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+          <div className="flex-1 custom-scrollbar" style={{ overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {assignedFamilies.length === 0 ? (
-              <div className="text-center py-10 text-sm" style={{ color: 'var(--text-muted)' }}>
-                <Home size={32} className="mx-auto mb-2 opacity-20" />
+              <div style={{ textAlign: 'center', padding: '2.5rem 0', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+                <Home size={32} style={{ margin: '0 auto 0.5rem', opacity: 0.2 }} />
                 No hay familias asignadas a ninguna mesa.
               </div>
             ) : (
               assignedFamilies.map((fam) => (
                 <div 
                   key={fam.key} 
-                  className={`p-3 rounded-lg border cursor-pointer transition-all`}
                   style={{
+                    padding: '0.75rem', borderRadius: '8px', border: '1px solid', cursor: 'pointer', transition: 'all 0.2s',
                     backgroundColor: fam.isOccupied ? 'color-mix(in srgb, var(--danger-color) 10%, transparent)' : 'color-mix(in srgb, var(--info-color) 10%, transparent)',
                     borderColor: fam.isOccupied ? 'color-mix(in srgb, var(--danger-color) 20%, transparent)' : 'color-mix(in srgb, var(--info-color) 20%, transparent)'
                   }}
                   onClick={() => handleTableClick(fam.zoneName, fam.tableNum)}
                 >
-                  <div className="flex justify-between items-start mb-1">
-                    <span className="font-bold text-sm truncate pr-2" style={{ color: 'var(--text-primary)' }}>{fam.familyName}</span>
-                    <span className="text-xs font-mono px-2 py-0.5 rounded whitespace-nowrap" style={{ backgroundColor: 'rgba(0,0,0,0.3)', color: 'var(--text-secondary)' }}>Mesa {fam.tableNum}</span>
+                  <div className="flex" style={{ justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '0.5rem', color: 'var(--text-primary)' }}>{fam.familyName}</span>
+                    <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', padding: '0.125rem 0.5rem', borderRadius: '4px', whiteSpace: 'nowrap', backgroundColor: 'rgba(0,0,0,0.3)', color: 'var(--text-secondary)' }}>Mesa {fam.tableNum}</span>
                   </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="capitalize" style={{ color: 'var(--text-secondary)' }}>{fam.zoneName}</span>
+                  <div className="flex" style={{ justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem' }}>
+                    <span style={{ textTransform: 'capitalize', color: 'var(--text-secondary)' }}>{fam.zoneName}</span>
                     {fam.isOccupied ? (
-                      <span className="flex items-center gap-1 text-red-400"><CheckCircle size={12}/> Ocupada</span>
+                      <span className="flex items-center" style={{ gap: '0.25rem', color: '#f87171' }}><CheckCircle size={12}/> Ocupada</span>
                     ) : (
-                      <span className="flex items-center gap-1 text-blue-400"><Clock size={12}/> Reservada</span>
+                      <span className="flex items-center" style={{ gap: '0.25rem', color: '#60a5fa' }}><Clock size={12}/> Reservada</span>
                     )}
                   </div>
                 </div>
