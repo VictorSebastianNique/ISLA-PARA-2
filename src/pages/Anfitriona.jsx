@@ -10,6 +10,7 @@ export default function Anfitriona() {
   const [selectedTable, setSelectedTable] = useState(null);
   const [familyNameInput, setFamilyNameInput] = useState('');
   const [selectedZoneId, setSelectedZoneId] = useState(null);
+  const [viewMode, setViewMode] = useState('mesas'); // 'mesas' | 'asignadas'
 
   React.useEffect(() => {
     if (zones && zones.length > 0 && !selectedZoneId) {
@@ -98,7 +99,7 @@ export default function Anfitriona() {
   }).sort((a, b) => b.timestamp - a.timestamp);
 
   return (
-    <div className="flex flex-col" style={{ height: '100vh', backgroundColor: 'var(--bg-color)', overflow: 'hidden' }}>
+    <div className="flex flex-col" style={{ height: '100dvh', backgroundColor: 'var(--bg-color)', overflow: 'hidden' }}>
       <PageHeader 
         icon={<Users size={28} color="#fff" />}
         title="Anfitriona"
@@ -112,9 +113,33 @@ export default function Anfitriona() {
         }
       />
 
+      {/* Mobile Toggle */}
+      <div className="lg:hidden flex border-b" style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--surface-color)' }}>
+        <button 
+          className={`flex-1 py-3 text-sm font-bold ${viewMode === 'mesas' ? 'border-b-2' : ''}`}
+          style={{ 
+            color: viewMode === 'mesas' ? 'var(--primary-color)' : 'var(--text-secondary)',
+            borderColor: viewMode === 'mesas' ? 'var(--primary-color)' : 'transparent'
+          }}
+          onClick={() => setViewMode('mesas')}
+        >
+          Plano de Mesas
+        </button>
+        <button 
+          className={`flex-1 py-3 text-sm font-bold ${viewMode === 'asignadas' ? 'border-b-2' : ''}`}
+          style={{ 
+            color: viewMode === 'asignadas' ? 'var(--primary-color)' : 'var(--text-secondary)',
+            borderColor: viewMode === 'asignadas' ? 'var(--primary-color)' : 'transparent'
+          }}
+          onClick={() => setViewMode('asignadas')}
+        >
+          Asignaciones ({assignedFamilies.length})
+        </button>
+      </div>
+
       <div className="flex flex-1" style={{ minHeight: 0, overflow: 'hidden' }}>
         {/* Main Map Area */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6" style={{ height: '100%' }}>
+        <div className={`flex-1 overflow-y-auto p-4 sm:p-6 ${viewMode === 'mesas' ? 'block' : 'hidden lg:block'}`}>
           <div className="max-w-5xl mx-auto space-y-6 pb-20">
             <div className="flex flex-wrap gap-4 mb-4">
                <div className="flex items-center gap-2 text-sm"><div className="w-4 h-4 rounded" style={{ backgroundColor: 'color-mix(in srgb, var(--success-color) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--success-color) 20%, transparent)' }}></div> Libre</div>
@@ -190,7 +215,7 @@ export default function Anfitriona() {
         </div>
 
         {/* Sidebar */}
-        <div className="w-80 flex flex-col hidden lg:flex shadow-xl z-10 relative" style={{ backgroundColor: 'var(--surface-solid)', borderLeft: '1px solid var(--border-color)' }}>
+        <div className={`w-full lg:w-80 flex-col shadow-xl z-10 relative ${viewMode === 'asignadas' ? 'flex' : 'hidden lg:flex'}`} style={{ backgroundColor: 'var(--surface-solid)', borderLeft: '1px solid var(--border-color)' }}>
           <div className="p-4 sticky top-0 z-10" style={{ backgroundColor: 'var(--surface-color)', borderBottom: '1px solid var(--border-color)' }}>
             <h3 className="font-bold flex items-center gap-2" style={{ color: 'var(--text-primary)' }}><Users size={18} className="text-primary" /> Mesas Asignadas</h3>
             <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>Lista en vivo de familias</p>
