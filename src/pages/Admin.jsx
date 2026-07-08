@@ -1232,7 +1232,7 @@ export default function Admin() {
                       <th className="pb-3 subtitle">Precio (S/)</th>
                       <th className="pb-3 subtitle">Días</th>
                       <th className="pb-3 subtitle">Estado</th>
-                      <th className="pb-3 subtitle" style={{ textAlign: 'right' }}>Acciones</th>
+                      <th className="pb-3 subtitle" style={{ textAlign: 'right', position: 'sticky', right: 0, backgroundColor: 'var(--card-bg)', zIndex: 10, boxShadow: '-2px 0 5px rgba(0,0,0,0.05)' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1310,7 +1310,7 @@ export default function Admin() {
                                   {m.noDiscount && <span style={{ fontSize: '0.65rem', color: 'var(--warning-color)', textAlign: 'center', marginTop: '0.2rem' }}>⚠️ Sin descuento</span>}
                                 </div>
                               </td>
-                              <td className="py-4 flex justify-end gap-2">
+                              <td className="py-4 flex justify-end gap-2" style={{ position: 'sticky', right: 0, backgroundColor: 'var(--card-bg)', zIndex: 9, boxShadow: '-2px 0 5px rgba(0,0,0,0.05)' }}>
                                 <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--primary-color)' }} onClick={() => setRecipeMenu(m)} title="Configurar Receta Kardex"><FileText size={16}/></button>
                                 <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--warning-color)' }} onClick={() => setEditMenu({ id: m.id, data: { ...m } })}><Edit2 size={16}/></button>
                                 <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--danger-color)' }} onClick={() => setCatalogs(prev => prev.map(c => c.id === workingCatalog.id ? { ...c, items: c.items.filter(i => i.id !== m.id) } : c))}><Trash2 size={16}/></button>
