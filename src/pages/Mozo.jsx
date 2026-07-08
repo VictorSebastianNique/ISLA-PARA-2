@@ -8,6 +8,7 @@ import PageHeader from '../components/PageHeader';
 import SplitBillModal from '../components/SplitBillModal';
 import PrintReceipt from '../components/PrintReceipt';
 import PrintOptionModal from '../components/PrintOptionModal';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 export default function Mozo() {
   const { showAlert } = useAlert();
@@ -121,6 +122,15 @@ export default function Mozo() {
 
   // Admin Auth Modal State
   const [voidItemTarget, setVoidItemTarget] = useState(null);
+
+  useEscapeKey(() => {
+    if (showPrintOptionModal) setShowPrintOptionModal(false);
+    if (isNotesModalOpen) setIsNotesModalOpen(false);
+    if (confirmReservationModal) setConfirmReservationModal(null);
+    if (showSplitBillModal) setShowSplitBillModal(false);
+    if (showHeadcountModal) setShowHeadcountModal(false);
+    if (selectedTable) setSelectedTable(null);
+  });
 
   const [currentTime, setCurrentTime] = useState(Date.now());
   useEffect(() => {

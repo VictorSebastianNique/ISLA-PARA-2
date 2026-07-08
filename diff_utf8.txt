@@ -1,0 +1,336 @@
+﻿commit de15fbd090c5f27ccddce9dd70bf295ca438efcf
+Author: Demo User <demo@example.com>
+Date:   Sat Jul 4 12:26:48 2026 -0500
+
+    feat: Implement Split Bill and Print Option Modal
+
+diff --git a/src/pages/Caja.jsx b/src/pages/Caja.jsx
+index 7cdc07a..77c2ba8 100644
+--- a/src/pages/Caja.jsx
++++ b/src/pages/Caja.jsx
+@@ -4,9 +4,12 @@ import { useNavigate } from 'react-router-dom';
+ import { useStore } from '../context/StoreContext';
+ import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer, FileDown, AlertTriangle } from 'lucide-react';
+ import UserManagement from '../components/UserManagement';
++import { v4 as uuidv4 } from 'uuid';
+ import PrintReceipt from '../components/PrintReceipt';
+ import PageHeader from '../components/PageHeader';
+ import SalesHistory from '../components/SalesHistory';
++import SplitBillModal from '../components/SplitBillModal';
++import PrintOptionModal from '../components/PrintOptionModal';
+ import html2canvas from 'html2canvas';
+ 
+ const IGV_RATE = 0.18;
+@@ -14,7 +17,7 @@ const IGV_RATE = 0.18;
+ export default function Caja() {
+   const { showAlert } = useAlert();
+   const navigate = useNavigate();
+-  const { currentUser, logout, zones, activeTables, payTable, businessDay, companies, setActiveTables, setBusinessDay, pastDays, orders, setOrders, addIncome, addExpense , developerSettings, users, logAudit, locations, updateOrderStatus, openCaja, closeCaja, menu, updateTableCart } = useStore();
++  const { businessDay, activeTables, orders, users, currentUser, logout, openCaja, closeCaja, addIncome, addExpense, payTable, updateTableCart, voidTableItem, voidSaleAndReopenTable, companies, issueCreditNote, locations, splitTableItem } = useStore();
+ 
+   const [selectedZone, setSelectedZone] = useState('all');
+   
+@@ -30,7 +33,8 @@ export default function Caja() {
+   const [selectedQuantities, setSelectedQuantities] = useState({});
+   const [showAddMenu, setShowAddMenu] = useState(false);
+   const [menuSearch, setMenuSearch] = useState('');
+-
++  const [activeAccountTab, setActiveAccountTab] = useState('Todas');
++  const [showSplitBillModal, setShowSplitBillModal] = useState(false);
+ 
+ 
+   // Billing state
+@@ -273,7 +277,44 @@ export default function Caja() {
+   const incomeCategories = ['Ingreso de Liquidez', 'Adelanto/Contratos', 'Otros Ingresos'];
+   const expenseCategories = ['Pago a Proveedores', 'Compras Insumos', 'Pago de Personal', 'Otros Egresos'];
+ 
+-  const handlePrintPrecuenta = async () => {
++  const [showPrintOptionModal, setShowPrintOptionModal] = useState(false);
++  const [printOptionPayload, setPrintOptionPayload] = useState(null); // { type: 'precuenta' | 'comprobante', doc: object }
++  const [localPrintDoc, setLocalPrintDoc] = useState(null);
++
++  const triggerPrintPrecuenta = () => {
++    setPrintOptionPayload({ type: 'precuenta' });
++    setShowPrintOptionModal(true);
++  };
++
++  const triggerPrintComprobante = (doc) => {
++    setPrintOptionPayload({ type: 'comprobante', doc });
++    setShowPrintOptionModal(true);
++  };
++
++  const handlePrintLocal = () => {
++    if (printOptionPayload?.type === 'precuenta') {
++      const selectedTable = selectedTableKey ? activeTables[selectedTableKey] : null;
++      if (!selectedTable) return;
++      const tableCart = selectedTable.cart || [];
++      const itemsToPrint = tableCart.filter(c => selectedItemIds.includes(c.id));
++      if (itemsToPrint.length === 0) {
++        showAlert("Selecciona al menos un producto para la pre-cuenta.");
++        return;
++      }
++      const doc = {
++        documentType: 'precuenta',
++        tableNumber: selectedTable.number,
++        totalPagar: itemsToPrint.reduce((acc, c) => acc + (c.item.price * (selectedQuantities[c.id] || c.quantity)), 0),
++        cartDetails: itemsToPrint.map(c => ({ item: c.item, quantity: (selectedQuantities[c.id] || c.quantity), price: c.item.price }))
++      };
++      setLocalPrintDoc(doc);
++      setTimeout(() => { window.print(); setLocalPrintDoc(null); }, 300);
++    } else if (printOptionPayload?.type === 'comprobante') {
++      window.print();
++    }
++  };
++
++  const handlePrintRemote = async () => {
+     try {
+       const currentLocId = localStorage.getItem('currentLocationId') || 'default';
+       const cajaAgentId = developerSettings?.printerIds?.[currentLocId]?.caja;
+@@ -284,37 +325,41 @@ export default function Caja() {
+         return;
+       }
+       
+-      const selectedTable = selectedTableKey ? activeTables[selectedTableKey] : null;
+-      if (!selectedTable) return;
+-      
+-      const tableCart = selectedTable.cart || [];
+-      const itemsToPrint = tableCart.filter(c => selectedItemIds.includes(c.id)).map(c => ({
+-        name: c.item.name,
+-        quantity: c.quantity,
+-        price: c.item.price
+-      }));
+-      
+-      if (itemsToPrint.length === 0) {
+-        showAlert("Selecciona al menos un producto para la pre-cuenta.");
+-        return;
+-      }
+-      
+-      const totalToPrint = itemsToPrint.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
+-      
+-      const payload = {
+-        locationId: currentLocId,
+-        targetAgentId: cajaAgentId,
+-        payload: {
+-          documentType: 'precuenta',
+-          orderData: {
+-            table: selectedTable.number,
+-            waiter: selectedTable.waiter || 'Caja',
+-            customerName,
+-            total: totalToPrint,
+-            items: itemsToPrint
+-          }
++      let payload = null;
++      if (printOptionPayload?.type === 'precuenta') {
++        const selectedTable = selectedTableKey ? activeTables[selectedTableKey] : null;
++        if (!selectedTable) return;
++        const tableCart = selectedTable.cart || [];
++        const itemsToPrint = tableCart.filter(c => selectedItemIds.includes(c.id)).map(c => ({
++          name: c.item.name,
++          quantity: c.quantity,
++          price: c.item.price
++        }));
++        if (itemsToPrint.length === 0) {
++          showAlert("Selecciona al menos un producto para la pre-cuenta.");
++          return;
+         }
+-      };
++        const totalToPrint = itemsToPrint.reduce((acc, curr) => acc + (curr.price * curr.quantity), 0);
++        payload = {
++          locationId: currentLocId,
++          targetAgentId: cajaAgentId,
++          payload: {
++            documentType: 'precuenta',
++            orderData: { table: selectedTable.number, waiter: selectedTable.waiter || 'Caja', customerName, total: totalToPrint, items: itemsToPrint }
++          }
++        };
++      } else if (printOptionPayload?.type === 'comprobante') {
++        payload = {
++          locationId: currentLocId,
++          targetAgentId: cajaAgentId,
++          payload: {
++            documentType: 'comprobante',
++            orderData: printOptionPayload.doc
++          }
++        };
++      }
++
++      if (!payload) return;
+ 
+       const res = await fetch(`${printServerUrl}/dispatch-print`, {
+         method: 'POST',
+@@ -323,7 +368,7 @@ export default function Caja() {
+       });
+       
+       if (!res.ok) throw new Error("Error en el servidor central de impresi├│n");
+-      showAlert("Pre-cuenta enviada a la impresora.");
++      showAlert("Enviado a la impresora.");
+     } catch (e) {
+       console.error(e);
+       showAlert("No se pudo conectar al servidor de impresi├│n en la nube.");
+@@ -537,6 +582,7 @@ export default function Caja() {
+     if (table) { table.cart.forEach(c => initialQtys[c.id] = c.quantity); }
+     setSelectedQuantities(initialQtys);
+     setDiscountType('percent');
++    setActiveAccountTab('Todas');
+     setDocumentType('boleta');
+     setCustomerDni('');
+     setCustomerRuc('');
+@@ -778,7 +824,7 @@ export default function Caja() {
+       {viewMode === 'ventas' && <SalesHistory onViewReceipt={handleViewReceipt} />}
+ 
+       {/* PRINT RECEIPT COMPONENT (HIDDEN BY DEFAULT, VISIBLE ON PRINT) */}
+-      <PrintReceipt doc={paidDoc || viewingReceiptDoc} captureMode={isCapturing} />
++      <PrintReceipt doc={localPrintDoc || paidDoc || viewingReceiptDoc} captureMode={isCapturing} />
+ 
+       {/* MAIN */}
+       {viewMode === 'mesas' && (
+@@ -957,7 +1003,12 @@ export default function Caja() {
+                     <p className="subtitle" style={{ fontSize: '0.72rem' }}>{selectedTable.zone}</p>
+                     <h2 className="title" style={{ fontSize: '1.15rem' }}>Facturar ÔÇö Mesa {selectedTable.table} <span style={{ fontSize: '0.85rem', color: 'var(--warning-color)', marginLeft: '0.5rem' }}>ÔÅ▒´©Å {getOccupiedTime(selectedTable.cart)}</span></h2>
+                   </div>
+-                  <button className="btn btn-outline" style={{ padding: '0.35rem' }} onClick={handleClose}><X size={15} /></button>
++                  <div className="flex gap-2">
++                    <button className="btn btn-outline" style={{ padding: '0.35rem 0.75rem', borderColor: 'var(--primary-color)', color: 'var(--primary-color)' }} onClick={() => setShowSplitBillModal(true)}>
++                      <Users size={16} style={{marginRight: '0.3rem'}}/> Dividir Cuenta
++                    </button>
++                    <button className="btn btn-outline" style={{ padding: '0.35rem' }} onClick={handleClose}><X size={15} /></button>
++                  </div>
+                 </div>
+ 
+                 {/* ÔöÇÔöÇ SECCI├ôN 1: Empresa y Documento ÔöÇÔöÇ */}
+@@ -1066,22 +1117,71 @@ export default function Caja() {
+                       <Plus size={12} /> A├▒adir Plato
+                     </button>
+                   </div>
++
++                  {/* Selector de Cuentas */}
++                  {Array.from(new Set(selectedTable.cart.map(c => c.accountName || 'Cuenta Principal'))).length > 1 && (
++                    <div className="flex gap-2 overflow-x-auto pb-2 mb-2" style={{ scrollbarWidth: 'none', maxWidth: '100vw' }}>
++                      <button 
++                        className={`btn ${activeAccountTab === 'Todas' ? 'btn-primary' : 'btn-outline'}`}
++                        style={{ whiteSpace: 'nowrap', padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}
++                        onClick={() => {
++                          setActiveAccountTab('Todas');
++                          // Autoseleccionar todo al cambiar
++                          const ids = selectedTable.cart.map(c => c.id);
++                          setSelectedItemIds(ids);
++                          const qtys = {};
++                          selectedTable.cart.forEach(c => qtys[c.id] = c.quantity);
++                          setSelectedQuantities(qtys);
++                        }}
++                      >
++                        Todas las Cuentas
++                      </button>
++                      {Array.from(new Set(selectedTable.cart.map(c => c.accountName || 'Cuenta Principal'))).map(acc => (
++                        <button 
++                          key={acc}
++                          className={`btn ${activeAccountTab === acc ? 'btn-primary' : 'btn-outline'}`}
++                          style={{ whiteSpace: 'nowrap', padding: '0.3rem 0.8rem', fontSize: '0.8rem' }}
++                          onClick={() => {
++                            setActiveAccountTab(acc);
++                            // Autoseleccionar solo los de esta cuenta
++                            const filteredCart = selectedTable.cart.filter(c => (c.accountName || 'Cuenta Principal') === acc);
++                            const ids = filteredCart.map(c => c.id);
++                            setSelectedItemIds(ids);
++                            const qtys = {};
++                            filteredCart.forEach(c => qtys[c.id] = c.quantity);
++                            setSelectedQuantities(qtys);
++                          }}
++                        >
++                          {acc}
++                        </button>
++                      ))}
++                    </div>
++                  )}
++
+                   <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
+                     <thead>
+                       <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
+                         <th style={{ textAlign: 'center', padding: '0.3rem 0.25rem' }}>
+-                          <input type="checkbox" style={{ cursor: 'pointer' }} checked={selectedItemIds.length === selectedTable.cart.length && selectedTable.cart.length > 0} onChange={e => {
++                          <input type="checkbox" style={{ cursor: 'pointer' }} 
++                            checked={
++                              activeAccountTab === 'Todas' 
++                                ? selectedItemIds.length === selectedTable.cart.length && selectedTable.cart.length > 0
++                                : selectedItemIds.length > 0 && selectedItemIds.length === selectedTable.cart.filter(c => (c.accountName || 'Cuenta Principal') === activeAccountTab).length
++                            } 
++                            onChange={e => {
+                             const isChecked = e.target.checked;
+-                            setSelectedItemIds(isChecked ? selectedTable.cart.map(c => c.id) : []);
++                            const cartToConsider = activeAccountTab === 'Todas' ? selectedTable.cart : selectedTable.cart.filter(c => (c.accountName || 'Cuenta Principal') === activeAccountTab);
++                            
++                            setSelectedItemIds(isChecked ? cartToConsider.map(c => c.id) : []);
+                             if (isChecked) {
+                               const qtys = {};
+-                              selectedTable.cart.forEach(c => qtys[c.id] = c.quantity);
++                              cartToConsider.forEach(c => qtys[c.id] = c.quantity);
+                               setSelectedQuantities(qtys);
+                             }
+                           }} />
+                         </th>
+                         <th style={{ textAlign: 'left', padding: '0.3rem 0.25rem', fontWeight: 600 }}>
+-                          Plato <span style={{fontSize: '0.7rem', color: 'var(--primary-color)', marginLeft: '0.5rem'}}>({selectedItemIds.length}/{selectedTable.cart.length} sel.)</span>
++                          Plato <span style={{fontSize: '0.7rem', color: 'var(--primary-color)', marginLeft: '0.5rem'}}>({selectedItemIds.length}/{activeAccountTab === 'Todas' ? selectedTable.cart.length : selectedTable.cart.filter(c => (c.accountName || 'Cuenta Principal') === activeAccountTab).length} sel.)</span>
+                         </th>
+                         <th style={{ textAlign: 'center', padding: '0.3rem 0.25rem', fontWeight: 600 }}>Can.</th>
+                         <th style={{ textAlign: 'right', padding: '0.3rem 0.25rem', fontWeight: 600 }}>P.U.</th>
+@@ -1089,7 +1189,7 @@ export default function Caja() {
+                       </tr>
+                     </thead>
+                     <tbody>
+-                      {selectedTable.cart.map((c, i) => {
++                      {selectedTable.cart.filter(c => activeAccountTab === 'Todas' || (c.accountName || 'Cuenta Principal') === activeAccountTab).map((c, i) => {
+                         const rowQty = selectedItemIds.includes(c.id) ? (parseFloat(selectedQuantities[c.id]) || c.quantity) : c.quantity;
+                         return (
+                           <tr key={c.id} style={{ borderBottom: '1px dashed var(--border-color)', opacity: selectedItemIds.includes(c.id) ? 1 : 0.4 }}>
+@@ -1261,7 +1361,7 @@ export default function Caja() {
+                 {/* Print Pre-cuenta button */}
+                 <button
+                   style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.7rem', fontSize: '0.9rem', fontWeight: 600, backgroundColor: 'var(--surface-color)', color: 'var(--text-primary)', cursor: 'pointer', transition: 'all 0.2s', borderRadius: 'var(--border-radius-sm)', border: '1px solid var(--border-color)', marginBottom: '0.5rem' }}
+-                  onClick={handlePrintPrecuenta}
++                  onClick={triggerPrintPrecuenta}
+                   disabled={selectedItemIds.length === 0}
+                 >
+                   <Printer size={18} style={{ color: 'var(--primary-color)' }} /> 
+@@ -1391,7 +1491,7 @@ export default function Caja() {
+             </p>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+-              <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => window.print()}>
++              <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => triggerPrintComprobante(viewingReceiptDoc)}>
+                 <Receipt size={20} style={{ display: 'inline', marginRight: '0.5rem' }} /> Imprimir Copia
+               </button>
+               <button className="btn" style={{ padding: '0.8rem', fontSize: '1rem', backgroundColor: '#25D366', color: '#fff' }} onClick={handleShareWhatsApp} disabled={isCapturing}>
+@@ -1417,7 +1517,7 @@ export default function Caja() {
+             <p className="subtitle mb-4">La cuenta ha sido pagada y registrada.</p>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+-              <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => window.print()}>
++              <button className="btn btn-primary" style={{ padding: '0.8rem', fontSize: '1rem' }} onClick={() => triggerPrintComprobante(paidDoc)}>
+                 <Receipt size={20} style={{ display: 'inline', marginRight: '0.5rem' }} /> Imprimir Comprobante
+               </button>
+               <button className="btn" style={{ padding: '0.8rem', fontSize: '1rem', backgroundColor: '#25D366', color: '#fff' }} onClick={handleShareWhatsApp} disabled={isCapturing}>
+@@ -1769,6 +1869,23 @@ export default function Caja() {
+         </div>
+       )}
+ 
++
++
++      {/* V5: Split Bill Modal */}
++      <SplitBillModal 
++        isOpen={showSplitBillModal} 
++        onClose={() => setShowSplitBillModal(false)}
++        tableKey={selectedTableKey}
++        tableName={selectedTable?.table}
++      />
++      {/* Print Option Modal */}
++      {showPrintOptionModal && (
++        <PrintOptionModal 
++          onClose={() => setShowPrintOptionModal(false)}
++          onPrintLocal={handlePrintLocal}
++          onPrintRemote={handlePrintRemote}
++        />
++      )}
+     </div>
+   );
+ }

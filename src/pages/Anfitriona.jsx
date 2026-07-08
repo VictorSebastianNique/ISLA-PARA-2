@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Users, LogOut, CheckCircle, Clock, Trash2, Home, X } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 export default function Anfitriona() {
   const { currentUser, logout, zones, activeTables, tableFamilies, setTableFamily, developerSettings } = useStore();
@@ -11,6 +12,10 @@ export default function Anfitriona() {
   const [familyNameInput, setFamilyNameInput] = useState('');
   const [selectedZoneId, setSelectedZoneId] = useState(null);
   const [viewMode, setViewMode] = useState('mesas'); // 'mesas' | 'asignadas'
+
+  useEscapeKey(() => {
+    if (selectedTable) setSelectedTable(null);
+  });
 
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   

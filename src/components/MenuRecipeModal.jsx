@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '../context/StoreContext';
 import { X, Plus, Trash2, Save } from 'lucide-react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
+  useEscapeKey(onClose);
   const { kardexItems, catalogs, setCatalogs } = useStore();
   const [recipe, setRecipe] = useState(menuItem.kardexRecipe || []);
   const [newItemId, setNewItemId] = useState('');

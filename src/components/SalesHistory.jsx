@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { Receipt, X, AlertTriangle, Eye, Search, FileText, CheckSquare, Square } from 'lucide-react';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 const SalesHistory = ({ onViewReceipt }) => {
   const { businessDay, pastDays, voidSaleAndReopenTable, issueCreditNote, users, activeTables, zones } = useStore();
@@ -22,6 +23,11 @@ const SalesHistory = ({ onViewReceipt }) => {
   const [saleForCN, setSaleForCN] = useState(null);
   const [cnReason, setCnReason] = useState('');
   const [cnPin, setCnPin] = useState('');
+
+  useEscapeKey(() => {
+    if (showVoidModal) setShowVoidModal(false);
+    if (showCreditNoteModal) setShowCreditNoteModal(false);
+  });
   const [cnError, setCnError] = useState('');
   const [cnItemsSelected, setCnItemsSelected] = useState({}); // { index: true/false }
   const [isIssuingCN, setIsIssuingCN] = useState(false);

@@ -8,6 +8,7 @@ import KardexConfigTab from '../components/KardexConfigTab';
 import MenuRecipeModal from '../components/MenuRecipeModal';
 import CrmTab from '../components/CrmTab';
 import { getTodayOperatingWeather } from '../utils/weatherService';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 
 export default function Admin() {
   const { showAlert } = useAlert();
@@ -79,6 +80,10 @@ export default function Admin() {
   const [closeDayPassword, setCloseDayPassword] = useState('');
   const [closeDayDeclaredCash, setCloseDayDeclaredCash] = useState('');
   const [closeDayError, setCloseDayError] = useState('');
+
+  useEscapeKey(() => {
+    if (showCloseDayModal) setShowCloseDayModal(false);
+  });
 
   const handleOpenCloseDayModal = () => {
     if (Object.keys(activeTables).length > 0) {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { ChefHat, Check, Clock, Play, Send, Search, ToggleLeft, ToggleRight, FileText } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import MenuRecipeModal from '../components/MenuRecipeModal';
 
 const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch }) => {
@@ -155,6 +156,10 @@ export default function Cocina() {
   const { orders, setOrders, updateOrderStatus, dispatchOrderItems, currentUser, logout, categories, subcategories, menu, catalogs, menuStatus, updateMenuStatus, developerSettings } = useStore();
   const [confirmDispatch, setConfirmDispatch] = useState(null);
   const [recipeMenu, setRecipeMenu] = useState(null);
+
+  useEscapeKey(() => {
+    if (confirmDispatch) setConfirmDispatch(null);
+  });
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [activeStations, setActiveStations] = useState([]);
   const [windowSize, setWindowSize] = useState({ w: window.innerWidth, h: window.innerHeight });

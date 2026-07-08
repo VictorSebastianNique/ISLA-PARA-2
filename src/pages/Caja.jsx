@@ -10,6 +10,7 @@ import PageHeader from '../components/PageHeader';
 import SalesHistory from '../components/SalesHistory';
 import SplitBillModal from '../components/SplitBillModal';
 import PrintOptionModal from '../components/PrintOptionModal';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import html2canvas from 'html2canvas';
 
 const IGV_RATE = 0.18;
@@ -473,6 +474,15 @@ export default function Caja() {
   
   const [selectedDeliveryOrder, setSelectedDeliveryOrder] = useState(null);
   const [deliveryFee, setDeliveryFee] = useState('');
+
+  useEscapeKey(() => {
+    if (showDiscountModal) setShowDiscountModal(false);
+    if (showSplitBillModal) setShowSplitBillModal(false);
+    if (showCloseCajaModal) setShowCloseCajaModal(false);
+    if (showFlowModal) setShowFlowModal(false);
+    if (showPrintOptionModal) setShowPrintOptionModal(false);
+    if (selectedTableKey) setSelectedTableKey(null);
+  });
 
   const handleApproveOnlineOrder = (order) => {
     if (order.status === 'pending_approval') {

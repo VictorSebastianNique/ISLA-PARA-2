@@ -936,7 +936,13 @@
           "categoryId": "c3",
           "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
           "id": "efb90f1d-92a4-4206-9009-aa1416f4e1c0",
-          "active": true
+          "active": true,
+          "kardexRecipe": [
+            {
+              "kardexId": "k_adobo",
+              "qty": 1
+            }
+          ]
         },
         {
           "name": "PATITA EN FIAMBRE",

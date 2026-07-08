@@ -1,7 +1,8 @@
 import { useAlert } from '../context/AlertContext';
 import React, { useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import { useEscapeKey } from '../hooks/useEscapeKey';
 import { ShoppingCart, Search, User, ChevronLeft, Plus, Minus, X, Check, MapPin, Star, QrCode, ArrowRight, LogOut, Coffee, Pizza, Croissant, CakeSlice, CreditCard, Banknote, Smartphone, Clock } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 
@@ -48,6 +49,10 @@ export default function CustomerApp() {
   const [selectedSubcat, setSelectedSubcat] = useState('all');
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+
+  useEscapeKey(() => {
+    if (isCartOpen) setIsCartOpen(false);
+  });
 
   // Checkout
   const [deliveryMethod, setDeliveryMethod] = useState(''); // 'delivery' | 'recojo'
