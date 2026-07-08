@@ -385,7 +385,7 @@ export default function Cocina() {
           </div>
 
           {/* Grid of dishes grouped by category */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, overflowY: 'auto', paddingRight: '0.5rem' }}>
             {categories.map(cat => {
               const catItems = menu.filter(m =>
                 m.categoryId === cat.id &&
