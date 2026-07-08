@@ -265,7 +265,7 @@ export default function Cocina() {
     .filter(o => o.items.length > 0 && o.items.some(i => i.status !== 'ready')); // Hide if all matching items are ready
 
   return (
-    <div className="flex flex-col" style={{ height: '100vh', backgroundColor: 'var(--bg-color)' }}>
+    <div className="flex flex-col" style={{ height: '100vh', backgroundColor: 'var(--bg-color)', overflowY: 'auto', overflowX: 'hidden' }}>
       <PageHeader
         icon={<ChefHat />}
         iconGradient="135deg, #f59e0b, #ef4444"
@@ -383,7 +383,7 @@ export default function Cocina() {
           </div>
 
           {/* Grid of dishes grouped by category */}
-          <div style={{ flex: 1, overflowY: 'auto' }}>
+          <div style={{ flex: 1 }}>
             {categories.map(cat => {
               const catItems = menu.filter(m =>
                 m.categoryId === cat.id &&
