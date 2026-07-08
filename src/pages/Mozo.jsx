@@ -700,7 +700,10 @@ export default function Mozo() {
                   {items.map(c => (
                     <div key={c.id} className="flex flex-col gap-1 p-3 mb-3" style={{ border: '1px solid var(--border-color)', borderRadius: 'var(--border-radius-sm)', backgroundColor: 'var(--bg-color)', position: 'relative' }}>
                       <div className="flex justify-between items-center">
-                        <h4 style={{ fontWeight: 500, fontSize: '0.9rem' }}>{c.quantity || 1}x {c.item.name}</h4>
+                        <h4 style={{ fontWeight: 500, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                          {c.quantity || 1}x {c.item.name}
+                          {c.status === 'sent' && <span style={{ backgroundColor: 'var(--primary-color)', color: '#000', fontSize: '0.65rem', padding: '0.1rem 0.3rem', borderRadius: '4px', fontWeight: 'bold' }}>ENVIADO</span>}
+                        </h4>
                         <p className="subtitle" style={{ color: 'var(--primary-color)' }}>S/{(c.item.price * (c.quantity || 1)).toFixed(2)}</p>
                       </div>
                       
@@ -721,7 +724,7 @@ export default function Mozo() {
                           </button>
                         </div>
                       </div>
-                      {c.status === 'sent' && <span style={{ position: 'absolute', top: '-10px', right: '-10px', backgroundColor: 'var(--primary-color)', color: '#000', fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '10px', fontWeight: 'bold' }}>ENVIADO</span>}
+                      
                     </div>
                   ))}
                 </div>
