@@ -76,7 +76,7 @@
   --glass-blur-heavy: blur(16px);
 
   /* Nav */
-  --top-nav-bg:       rgba(15, 23, 42, 0.6);
+  --top-nav-bg:       rgba(15, 23, 42, 0.75);
   --top-nav-shadow:   0 4px 24px rgba(0,0,0,0.2);
 
   /* Transiciones */
@@ -105,7 +105,7 @@
   --primary-glow:     rgba(240, 94, 28, 0.25);
   --primary-subtle:   rgba(240, 94, 28, 0.08);
 
-  --top-nav-bg:       rgba(255, 255, 255, 0.6);
+  --top-nav-bg:       rgba(255, 255, 255, 0.85);
   --top-nav-shadow:   0 4px 24px rgba(0,0,0,0.05);
 
   --success-color:    #059669;
@@ -427,8 +427,10 @@ h1, h2, h3, h4, h5, h6 {
    ============================================================ */
 .top-nav {
   background: var(--top-nav-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  will-change: transform;
+  transform: translateZ(0);
   border-bottom: 1px solid var(--glass-border);
   padding: 0.85rem 2rem;
   display: flex;
