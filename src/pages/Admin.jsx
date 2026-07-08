@@ -1600,6 +1600,14 @@ export default function Admin() {
         </div>
       )}
 
+      {recipeMenu && (
+        <MenuRecipeModal
+          menuItem={recipeMenu}
+          catalogId={workingCatalog.id}
+          onClose={() => setRecipeMenu(null)}
+        />
+      )}
+
     </div>
   );
 }

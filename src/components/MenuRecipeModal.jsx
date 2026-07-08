@@ -68,23 +68,32 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
         </div>
 
         {/* Add new Item */}
-        <div className="flex gap-2 items-end bg-gray-100 p-3 rounded mb-6">
-          <div className="flex-1">
-            <label className="text-xs font-semibold mb-1 block">Agregar Insumo</label>
-            <select className="input w-full" value={newItemId} onChange={e => setNewItemId(e.target.value)}>
-              <option value="">Seleccione...</option>
-              {kardexItems.filter(k => k.active !== false).map(k => (
-                <option key={k.id} value={k.id}>{k.name}</option>
-              ))}
-            </select>
+        <div className="bg-gray-100 p-3 rounded mb-6">
+          <div className="flex gap-2 items-end mb-3">
+            <div className="flex-1">
+              <label className="text-xs font-semibold mb-1 block">Agregar Insumo</label>
+              <select className="input w-full" value={newItemId} onChange={e => setNewItemId(e.target.value)}>
+                <option value="">Seleccione...</option>
+                {kardexItems.filter(k => k.active !== false).map(k => (
+                  <option key={k.id} value={k.id}>{k.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="w-20">
+              <label className="text-xs font-semibold mb-1 block">Cant.</label>
+              <input type="number" step="0.1" className="input w-full" value={newQty} onChange={e => setNewQty(e.target.value)} />
+            </div>
+            <button className="btn btn-primary p-2" onClick={handleAdd}>
+              <Plus size={18} />
+            </button>
           </div>
-          <div className="w-20">
-            <label className="text-xs font-semibold mb-1 block">Cant.</label>
-            <input type="number" step="0.1" className="input w-full" value={newQty} onChange={e => setNewQty(e.target.value)} />
+          
+          <div className="flex gap-2 justify-end">
+            <span className="text-xs text-gray-500 self-center mr-2">Rápidos:</span>
+            <button className="btn btn-outline py-1 px-2 text-xs" onClick={() => setNewQty('0.5')}>0.5</button>
+            <button className="btn btn-outline py-1 px-2 text-xs" onClick={() => setNewQty('1')}>1</button>
+            <button className="btn btn-outline py-1 px-2 text-xs" onClick={() => setNewQty('2')}>2</button>
           </div>
-          <button className="btn btn-primary p-2" onClick={handleAdd}>
-            <Plus size={18} />
-          </button>
         </div>
 
         <div className="flex justify-end gap-2">
