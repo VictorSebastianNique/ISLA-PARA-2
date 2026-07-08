@@ -774,7 +774,7 @@ export default function Caja() {
         badge={(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Supervisor' : null}
         badgeColor="var(--warning-color)"
         actions={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <>
             {businessDay?.cajaDetails?.isOpen && (
               <button 
                 className="btn btn-outline" 
@@ -813,7 +813,7 @@ export default function Caja() {
             ) : (
               <button className="btn btn-danger" style={{ padding: '0.4rem 0.6rem' }} onClick={handleLogout}><LogOut size={15} /></button>
             )}
-          </div>
+          </>
         }
       />
 

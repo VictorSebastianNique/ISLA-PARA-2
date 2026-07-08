@@ -887,7 +887,7 @@ export default function Admin() {
                 </form>
               </div>
 
-              <div className="grid grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2">
                 {categories.map(c => (
                   <div key={c.id} className="card flex justify-between items-center">
                     {editCat?.id === c.id ? (
@@ -976,7 +976,7 @@ export default function Admin() {
                     return (
                       <div key={loc.id} className="card flex flex-col justify-between gap-4" style={{ border: '1px solid var(--primary-color)' }}>
                         <h3 className="title">Editar Sede</h3>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           <input className="input" placeholder="Nombre Interno" value={editLocation.name} onChange={e => setEditLocation({...editLocation, name: e.target.value})} />
                           <input className="input" placeholder="Marca (Ticket)" value={editLocation.brandName || ''} onChange={e => setEditLocation({...editLocation, brandName: e.target.value})} />
                           <input className="input" placeholder="Dirección" value={editLocation.address || ''} onChange={e => setEditLocation({...editLocation, address: e.target.value})} />
@@ -1057,7 +1057,7 @@ export default function Admin() {
                 </form>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {subcategories.map(s => {
                   const parentCat = categories.find(c => c.id === s.categoryId);
                   return (
@@ -1346,7 +1346,7 @@ export default function Admin() {
                     </form>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {zones.map(z => (
                       <div key={z.id} className="card card-interactive flex flex-col justify-between" onClick={() => setSelectedAdminZone(z)}>
                         {editZone?.id === z.id ? (
@@ -1382,7 +1382,7 @@ export default function Admin() {
                     <h2 className="title text-primary-color">{zones.find(z => z.id === selectedAdminZone.id)?.name}</h2>
                   </div>
 
-                  <div className="grid grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {zones.find(z => z.id === selectedAdminZone.id)?.tables.map((tableName, i) => (
                       <div 
                         key={i} 

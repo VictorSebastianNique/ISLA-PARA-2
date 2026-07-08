@@ -67,7 +67,7 @@ export default function Kardex() {
         title="Kardex de Producción"
         subtitle="Control diario de porciones e insumos"
         actions={
-          <div className="flex gap-4 items-center">
+          <>
             <select 
               className="input" 
               value={selectedDateId} 
@@ -89,7 +89,7 @@ export default function Kardex() {
             <button className="btn btn-outline flex items-center gap-2" onClick={() => navigate(-1)}>
               <ArrowLeft size={18} /> Volver
             </button>
-          </div>
+          </>
         }
       />
 

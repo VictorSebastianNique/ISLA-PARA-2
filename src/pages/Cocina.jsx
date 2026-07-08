@@ -275,7 +275,7 @@ export default function Cocina() {
         badge={(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Modo Supervisor' : null}
         badgeColor="var(--warning-color)"
         actions={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <>
             <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
               <button
                 onClick={() => setViewMode('ordenes')}
@@ -298,7 +298,7 @@ export default function Cocina() {
             <button className="btn btn-outline" onClick={handleLogout}>
               {(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Volver al Admin' : 'Cerrar Sesión'}
             </button>
-          </div>
+          </>
         }
       />
 

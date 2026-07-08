@@ -565,7 +565,7 @@ export default function CustomerApp() {
           badge="Modo Cliente"
           badgeColor="var(--success-color)"
           actions={
-            <div className="flex items-center gap-2">
+            <>
               <button className="btn btn-outline" style={{ fontSize: isMobile ? '0.8rem' : '0.9rem' }} onClick={() => setCurrentScreen('location_select')}>
                 <ChevronLeft size={16} /> Volver
               </button>
@@ -579,7 +579,7 @@ export default function CustomerApp() {
                   )}
                 </button>
               )}
-            </div>
+            </>
           }
         />
         
