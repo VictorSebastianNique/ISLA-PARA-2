@@ -31,11 +31,11 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-      <div className="card p-6 w-full max-w-md animate-scale-in" style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="card animate-fade-in" style={{ width: '90%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="title text-lg">Receta Kardex: {menuItem.name}</h2>
-          <button className="icon-btn" onClick={onClose}><X size={20} /></button>
+          <h2 className="title" style={{ fontSize: '1.1rem' }}>Receta Kardex: {menuItem.name}</h2>
+          <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={onClose}><X size={16} /></button>
         </div>
 
         <p className="text-sm text-gray-600 mb-4">
