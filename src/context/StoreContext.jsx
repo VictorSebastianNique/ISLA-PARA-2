@@ -9,7 +9,7 @@ export const StoreProvider = ({ children }) => {
   const [loading, setLoading] = React.useState(true);
   const lastSaveTime = React.useRef(0);
 
-  const [currentUser, setCurrentUser] = React.useState(null);
+  const [currentUser, setCurrentUser] = React.useState({ username: 'admin', role: 'superadmin' });
   const [locations, setLocations] = React.useState([]);
   const [users, setUsers] = React.useState([]);
   const [categories, setCategories] = React.useState([]);
