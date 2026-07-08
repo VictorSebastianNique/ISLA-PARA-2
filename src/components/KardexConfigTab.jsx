@@ -116,9 +116,9 @@ const KardexConfigTab = () => {
                 <td className="p-3">
                   {item.active !== false ? <span className="text-green-600 font-bold">Activo</span> : <span className="text-red-500">Inactivo</span>}
                 </td>
-                <td className="p-3 flex gap-2">
-                  <button className="icon-btn text-blue-500" onClick={() => handleEdit(item)}><Edit2 size={16} /></button>
-                  <button className="icon-btn text-red-500" onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
+                <td className="p-3 flex gap-2 justify-end">
+                  <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--warning-color)' }} onClick={() => handleEdit(item)}><Edit2 size={16} /></button>
+                  <button className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--danger-color)' }} onClick={() => handleDelete(item.id)}><Trash2 size={16} /></button>
                 </td>
               </tr>
             ))}
