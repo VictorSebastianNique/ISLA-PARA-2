@@ -7,6 +7,7 @@ import Metrics from './Metrics';
 import KardexConfigTab from '../components/KardexConfigTab';
 import MenuRecipeModal from '../components/MenuRecipeModal';
 import CrmTab from '../components/CrmTab';
+import { getTodayOperatingWeather } from '../utils/weatherService';
 
 export default function Admin() {
   const { showAlert } = useAlert();
@@ -90,7 +91,7 @@ export default function Admin() {
     setCloseDayError('');
   };
 
-  const handleCloseDayConfirm = (e) => {
+  const handleCloseDayConfirm = async (e) => {
     e.preventDefault();
     const adminUser = users.find(u => (u.role === 'admin' || u.role === 'superadmin') && u.password === closeDayPassword && u.active);
     if (!adminUser) {
@@ -111,8 +112,11 @@ export default function Admin() {
       return;
     }
 
+    const weatherData = await getTodayOperatingWeather();
+
     closeDay({
-      arqueo: { expectedCash, declaredCash, difference: declaredCash - expectedCash }
+      arqueo: { expectedCash, declaredCash, difference: declaredCash - expectedCash },
+      weather: weatherData
     });
     setShowCloseDayModal(false);
   };

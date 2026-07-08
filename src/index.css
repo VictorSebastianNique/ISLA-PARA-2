@@ -75,8 +75,12 @@
   --glass-blur:       blur(12px);
   --glass-blur-heavy: blur(16px);
 
+  /* Nav */
+  --top-nav-bg:       rgba(15, 23, 42, 0.6);
+  --top-nav-shadow:   0 4px 24px rgba(0,0,0,0.2);
+
   /* Transiciones */
-  --transition:       all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition:       all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   --transition-slow:  all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -100,6 +104,9 @@
   --primary-hover:    #d44f10;
   --primary-glow:     rgba(240, 94, 28, 0.25);
   --primary-subtle:   rgba(240, 94, 28, 0.08);
+
+  --top-nav-bg:       rgba(255, 255, 255, 0.6);
+  --top-nav-shadow:   0 4px 24px rgba(0,0,0,0.05);
 
   --success-color:    #059669;
   --success-hover:    #047857;
@@ -419,7 +426,7 @@ h1, h2, h3, h4, h5, h6 {
    NAVEGACIÓN SUPERIOR (Glassmorphism)
    ============================================================ */
 .top-nav {
-  background: rgba(15, 23, 42, 0.85);
+  background: var(--top-nav-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--glass-border);
@@ -430,7 +437,7 @@ h1, h2, h3, h4, h5, h6 {
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  box-shadow: var(--top-nav-shadow);
   transition: var(--transition);
 }
 
