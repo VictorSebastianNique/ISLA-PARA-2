@@ -32,8 +32,8 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
   };
 
   return createPortal(
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: '90%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.5)' }}>
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="glass-card" style={{ width: '90%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto', borderRadius: '12px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.5)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <h2 className="title" style={{ fontSize: '1.1rem', margin: 0 }}>Receta Kardex: {menuItem.name}</h2>
           <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={onClose}><X size={16} /></button>
@@ -53,7 +53,7 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
               {recipe.map((r, idx) => {
                 const kardexItem = kardexItems.find(k => k.id === r.kardexId);
                 return (
-                  <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-color)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
+                  <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
                     <div>
                       <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{kardexItem ? kardexItem.name : 'Insumo desconocido'}</span>
                       <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', backgroundColor: 'var(--primary-color)', color: '#000', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 'bold' }}>Cant: {r.qty}</span>
@@ -69,7 +69,7 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
         </div>
 
         {/* Add new Item */}
-        <div style={{ backgroundColor: 'var(--bg-color)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
+        <div style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
               <label className="subtitle" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.2rem' }}>Agregar Insumo</label>
