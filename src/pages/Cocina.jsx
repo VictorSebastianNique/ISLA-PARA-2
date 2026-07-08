@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { ChefHat, Check, Clock, Play, Send, Search, ToggleLeft, ToggleRight } from 'lucide-react';
+import { ChefHat, Check, Clock, Play, Send, Search, ToggleLeft, ToggleRight, FileText } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
+import MenuRecipeModal from '../components/MenuRecipeModal';
 
 const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch }) => {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -151,8 +152,9 @@ const OrderCard = ({ order, currentTime, dispatchOrderItems, setConfirmDispatch 
 
 export default function Cocina() {
   const navigate = useNavigate();
-  const { orders, setOrders, updateOrderStatus, dispatchOrderItems, currentUser, logout, categories, subcategories, menu, menuStatus, updateMenuStatus, developerSettings } = useStore();
+  const { orders, setOrders, updateOrderStatus, dispatchOrderItems, currentUser, logout, categories, subcategories, menu, catalogs, menuStatus, updateMenuStatus, developerSettings } = useStore();
   const [confirmDispatch, setConfirmDispatch] = useState(null);
+  const [recipeMenu, setRecipeMenu] = useState(null);
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [activeStations, setActiveStations] = useState([]);
   const [windowSize, setWindowSize] = useState({ w: window.innerWidth, h: window.innerHeight });
@@ -417,17 +419,26 @@ export default function Cocina() {
                             </p>
                             <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', marginTop: '0.1rem' }}>S/{parseFloat(m.price).toFixed(2)}</p>
                           </div>
-                          {/* Toggle button */}
-                          <button
-                            onClick={() => updateMenuStatus({ ...menuStatus, [m.id]: isActive ? false : true })}
-                            title={isActive ? 'Desactivar plato localmente' : 'Activar plato localmente'}
-                            style={{ marginLeft: '0.5rem', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0, padding: '0.2rem' }}
-                          >
-                            {isActive
-                              ? <ToggleRight size={28} style={{ color: 'var(--success-color)' }} />
-                              : <ToggleLeft size={28} style={{ color: 'var(--danger-color)' }} />
-                            }
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <button
+                              onClick={() => setRecipeMenu(m)}
+                              title="Configurar Receta Kardex"
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0, padding: '0.3rem', color: 'var(--primary-color)' }}
+                            >
+                              <FileText size={20} />
+                            </button>
+                            {/* Toggle button */}
+                            <button
+                              onClick={() => updateMenuStatus({ ...menuStatus, [m.id]: isActive ? false : true })}
+                              title={isActive ? 'Desactivar plato localmente' : 'Activar plato localmente'}
+                              style={{ marginLeft: '0.2rem', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', flexShrink: 0, padding: '0.2rem' }}
+                            >
+                              {isActive
+                                ? <ToggleRight size={28} style={{ color: 'var(--success-color)' }} />
+                                : <ToggleLeft size={28} style={{ color: 'var(--danger-color)' }} />
+                              }
+                            </button>
+                          </div>
                         </div>
                       );
                     })}
@@ -471,6 +482,14 @@ export default function Cocina() {
             </div>
           </div>
         </div>
+      )}
+
+      {recipeMenu && (
+        <MenuRecipeModal
+          menuItem={recipeMenu}
+          catalogId={catalogs.find(c => c.active)?.id}
+          onClose={() => setRecipeMenu(null)}
+        />
       )}
     </div>
   );
