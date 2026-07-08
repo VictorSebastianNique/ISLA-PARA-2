@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-const { initMongo, seedMongo } = require('./db.cjs');
+const { initMongo, seedMongo, appendAuditLog, getAuditLogs } = require('./db.cjs');
 const storeRoutes = require('./routes/store.cjs');
 
 const PORT = process.env.PORT || 3000;
@@ -15,6 +15,25 @@ app.use(express.json({ limit: '10mb', strict: false }));
 
 // Montar rutas de API
 app.use('/api/store', storeRoutes);
+
+// Rutas de Auditoría
+app.get('/api/audit/logs', async (req, res, next) => {
+  try {
+    const logs = await getAuditLogs();
+    res.json(logs);
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.post('/api/audit/log', async (req, res, next) => {
+  try {
+    await appendAuditLog(req.body);
+    res.json({ success: true });
+  } catch (e) {
+    next(e);
+  }
+});
 
 app.post('/api/anular', (req, res) => {
   res.json({
