@@ -31,34 +31,35 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
   };
 
   return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card animate-fade-in" style={{ width: '90%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="title" style={{ fontSize: '1.1rem' }}>Receta Kardex: {menuItem.name}</h2>
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="card" style={{ width: '90%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h2 className="title" style={{ fontSize: '1.1rem', margin: 0 }}>Receta Kardex: {menuItem.name}</h2>
           <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={onClose}><X size={16} /></button>
         </div>
 
-        <p className="text-sm text-gray-600 mb-4">
+        <p className="subtitle" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>
           Configura qué insumos de producción se descontarán automáticamente cuando se venda este plato.
         </p>
 
         {/* Existing Recipe Items */}
-        <div className="mb-4">
-          <h3 className="font-bold mb-2">Insumos vinculados:</h3>
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem', fontSize: '0.9rem' }}>Insumos vinculados:</h3>
           {recipe.length === 0 ? (
-            <p className="text-sm text-gray-500 italic">No hay insumos vinculados a este plato.</p>
+            <p className="subtitle" style={{ fontSize: '0.85rem', fontStyle: 'italic' }}>No hay insumos vinculados a este plato.</p>
           ) : (
-            <ul className="flex flex-col gap-2">
+            <ul style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: 0, margin: 0, listStyle: 'none' }}>
               {recipe.map((r, idx) => {
                 const kardexItem = kardexItems.find(k => k.id === r.kardexId);
                 return (
-                  <li key={idx} className="flex justify-between items-center bg-gray-50 p-2 rounded border">
+                  <li key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--bg-color)', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border-color)' }}>
                     <div>
-                      <span className="font-semibold">{kardexItem ? kardexItem.name : 'Insumo desconocido'}</span>
-                      <span className="text-xs ml-2 bg-blue-100 text-blue-800 px-1 rounded">Cant: {r.qty}</span>
+                      <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>{kardexItem ? kardexItem.name : 'Insumo desconocido'}</span>
+                      <span style={{ fontSize: '0.75rem', marginLeft: '0.5rem', backgroundColor: 'var(--primary-color)', color: '#000', padding: '0.1rem 0.4rem', borderRadius: '4px', fontWeight: 'bold' }}>Cant: {r.qty}</span>
                     </div>
-                    <button className="text-red-500 p-1" onClick={() => handleRemove(idx)}>
-                      <Trash2 size={16} />
+                    <button className="btn btn-outline" style={{ padding: '0.3rem', color: 'var(--danger-color)', borderColor: 'var(--danger-color)' }} onClick={() => handleRemove(idx)}>
+                      <Trash2 size={15} />
                     </button>
                   </li>
                 );
@@ -68,37 +69,37 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
         </div>
 
         {/* Add new Item */}
-        <div className="bg-gray-100 p-3 rounded mb-6">
-          <div className="flex gap-2 items-end mb-3">
-            <div className="flex-1">
-              <label className="text-xs font-semibold mb-1 block">Agregar Insumo</label>
-              <select className="input w-full" value={newItemId} onChange={e => setNewItemId(e.target.value)}>
+        <div style={{ backgroundColor: 'var(--bg-color)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', border: '1px solid var(--border-color)' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 200px' }}>
+              <label className="subtitle" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.2rem' }}>Agregar Insumo</label>
+              <select className="input" style={{ width: '100%', padding: '0.5rem' }} value={newItemId} onChange={e => setNewItemId(e.target.value)}>
                 <option value="">Seleccione...</option>
                 {kardexItems.filter(k => k.active !== false).map(k => (
                   <option key={k.id} value={k.id}>{k.name}</option>
                 ))}
               </select>
             </div>
-            <div className="w-20">
-              <label className="text-xs font-semibold mb-1 block">Cant.</label>
-              <input type="number" step="0.1" className="input w-full" value={newQty} onChange={e => setNewQty(e.target.value)} />
+            <div style={{ width: '80px' }}>
+              <label className="subtitle" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.2rem' }}>Cant.</label>
+              <input type="number" step="0.1" className="input" style={{ width: '100%', padding: '0.5rem' }} value={newQty} onChange={e => setNewQty(e.target.value)} />
             </div>
-            <button className="btn btn-primary p-2" onClick={handleAdd}>
+            <button className="btn btn-primary" style={{ padding: '0.5rem 0.75rem' }} onClick={handleAdd}>
               <Plus size={18} />
             </button>
           </div>
           
-          <div className="flex gap-2 justify-end">
-            <span className="text-xs text-gray-500 self-center mr-2">Rápidos:</span>
-            <button className="btn btn-outline py-1 px-2 text-xs" onClick={() => setNewQty('0.5')}>0.5</button>
-            <button className="btn btn-outline py-1 px-2 text-xs" onClick={() => setNewQty('1')}>1</button>
-            <button className="btn btn-outline py-1 px-2 text-xs" onClick={() => setNewQty('2')}>2</button>
+          <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <span className="subtitle" style={{ fontSize: '0.75rem', marginRight: '0.2rem' }}>Rápidos:</span>
+            <button className="btn btn-outline" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }} onClick={() => setNewQty('0.5')}>0.5</button>
+            <button className="btn btn-outline" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }} onClick={() => setNewQty('1')}>1</button>
+            <button className="btn btn-outline" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }} onClick={() => setNewQty('2')}>2</button>
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
           <button className="btn btn-outline" onClick={onClose}>Cancelar</button>
-          <button className="btn btn-primary flex items-center gap-2" onClick={handleSave}>
+          <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }} onClick={handleSave}>
             <Save size={16} /> Guardar Receta
           </button>
         </div>
