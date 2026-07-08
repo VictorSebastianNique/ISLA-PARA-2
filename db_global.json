@@ -894,8 +894,13 @@
     }
   ],
   "currentUser": {
+    "id": "u1",
     "username": "admin",
-    "role": "superadmin"
+    "password": "150801",
+    "role": "superadmin",
+    "name": "Jefe",
+    "active": true,
+    "locationId": "all"
   },
   "developerSettings": {
     "isSuperAdminIncognito": true,
@@ -931,13 +936,7 @@
           "categoryId": "c3",
           "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
           "id": "efb90f1d-92a4-4206-9009-aa1416f4e1c0",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_adobo",
-              "qty": 1
-            }
-          ]
+          "active": true
         },
         {
           "name": "PATITA EN FIAMBRE",
@@ -945,13 +944,7 @@
           "categoryId": "c3",
           "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
           "id": "be0a1250-a332-4fc3-bb5a-6be44fd89540",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_patita",
-              "qty": 1
-            }
-          ]
+          "active": true
         },
         {
           "name": "1/2 PATITA EN FIAMBRE",
@@ -959,13 +952,7 @@
           "categoryId": "c3",
           "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
           "id": "ef6445db-2aea-47a7-8e4e-8fc6f7c00e51",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_patita",
-              "qty": 0.5
-            }
-          ]
+          "active": true
         },
         {
           "name": "SANGRECITA",
@@ -1005,13 +992,7 @@
           "categoryId": "c3",
           "subcategoryId": "fc008c58-18fd-4371-8cb3-23fdc583cd8e",
           "id": "ba7457d9-af2c-45d9-b915-ab9629ab4f47",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_mollejita",
-              "qty": 1
-            }
-          ]
+          "active": true
         },
         {
           "name": "HUMITA DOÑA FRESIA",
@@ -1089,13 +1070,7 @@
           "categoryId": "c3",
           "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
           "id": "826d58ff-15b3-4f84-88d9-1408e34ce3b5",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_tollo",
-              "qty": 1
-            }
-          ]
+          "active": true
         },
         {
           "name": "1/2 LECHE DE TIGRE",
@@ -1103,13 +1078,7 @@
           "categoryId": "c3",
           "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
           "id": "6eb10564-b4cb-4fb7-b116-20fa985c1d27",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_tollo",
-              "qty": 0.5
-            }
-          ]
+          "active": true
         },
         {
           "name": "TRILOGIA DE LECHES DE TIGRE",
@@ -1117,13 +1086,7 @@
           "categoryId": "c3",
           "subcategoryId": "62dc0dc7-720b-42ed-bd0f-13962d9d8af8",
           "id": "d9e07eb2-f50a-42c0-9cc5-0f9ee5ed9529",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_tollo",
-              "qty": 1
-            }
-          ]
+          "active": true
         },
         {
           "name": "TIRADITO A LAS 2 CREMAS",
@@ -1194,10 +1157,6 @@
             {
               "kardexId": "k_lenguado",
               "qty": 1
-            },
-            {
-              "kardexId": "k_tollo",
-              "qty": 1
             }
           ]
         },
@@ -1261,13 +1220,7 @@
           "categoryId": "c3",
           "subcategoryId": "057af192-255f-4fe6-b4ee-05d369d3372f",
           "id": "1577fe66-465e-4d97-9dd7-e85720cc4d96",
-          "active": true,
-          "kardexRecipe": [
-            {
-              "kardexId": "k_tollo",
-              "qty": 1
-            }
-          ]
+          "active": true
         },
         {
           "name": "CHICHARRON DE LANGOSTINOS",
@@ -1380,7 +1333,7 @@
           "active": true,
           "kardexRecipe": [
             {
-              "kardexId": "k_tollo",
+              "kardexId": "k_mixtura_mariscos",
               "qty": 2
             }
           ]
@@ -1393,14 +1346,6 @@
           "id": "d943ca5d-6b4c-48a2-82fb-b31e40adb37a",
           "active": true,
           "kardexRecipe": [
-            {
-              "kardexId": "k_mollejita",
-              "qty": 1
-            },
-            {
-              "kardexId": "k_cecina",
-              "qty": 0.5
-            },
             {
               "kardexId": "k_cabrito_normal",
               "qty": 2
@@ -1447,6 +1392,10 @@
             },
             {
               "kardexId": "k_filete_pollo",
+              "qty": 0.5
+            },
+            {
+              "kardexId": "k_langostinos_mariscos",
               "qty": 0.5
             }
           ]
@@ -1786,7 +1735,7 @@
           "kardexRecipe": [
             {
               "kardexId": "k_filete_pollo",
-              "qty": 1
+              "qty": 0.5
             }
           ]
         },
