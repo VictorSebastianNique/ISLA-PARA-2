@@ -22,7 +22,8 @@ const apiPlugin = () => ({
       }
 
       if (req.url.startsWith('/api/store/local/') && req.method === 'GET') {
-        const locId = req.url.split('/api/store/local/')[1];
+        const urlWithoutQuery = req.url.split('?')[0];
+        const locId = urlWithoutQuery.split('/api/store/local/')[1];
         const dbPath = path.resolve(process.cwd(), `db_local_${locId}.json`);
         if (fs.existsSync(dbPath)) {
           res.setHeader('Content-Type', 'application/json');
