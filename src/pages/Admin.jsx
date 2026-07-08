@@ -1179,14 +1179,16 @@ export default function Admin() {
                       {subcategories.filter(s => s.categoryId === newMenu.categoryId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                     </select>
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: '42px', paddingBottom: '0.2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.5rem', flex: '1 1 180px' }}>
                     <input type="checkbox" checked={newMenu.noDiscount} onChange={e => setNewMenu({...newMenu, noDiscount: e.target.checked})} id="noDiscount" />
-                    <label htmlFor="noDiscount" className="subtitle mb-0" style={{ fontSize: '0.8rem', cursor: 'pointer' }}>No permite descuento</label>
+                    <label htmlFor="noDiscount" className="subtitle mb-0" style={{ fontSize: '0.85rem', cursor: 'pointer' }}>No permite descuento</label>
                   </div>
-                  <div style={{ height: '42px', display: 'flex', alignItems: 'flex-end', paddingBottom: '0.2rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', flex: '1 1 250px' }}>
                     <DaySelector selectedDays={newMenu.availableDays || []} onChange={days => setNewMenu({...newMenu, availableDays: days})} />
                   </div>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: '0.2rem' }}>
+                    <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', height: 'fit-content' }}><Plus size={20}/></button>
+                  </div>
                 </form>
               </div>
 
@@ -1225,14 +1227,14 @@ export default function Admin() {
                 </div>
                 <div style={{ overflowX: 'auto', paddingBottom: '0.5rem' }}><table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>
-                      <th className="pb-3 subtitle">Nombre</th>
-                      <th className="pb-3 subtitle">Categoría</th>
-                      <th className="pb-3 subtitle">Subcategoría</th>
-                      <th className="pb-3 subtitle">Precio (S/)</th>
-                      <th className="pb-3 subtitle">Días</th>
-                      <th className="pb-3 subtitle">Estado</th>
-                      <th className="pb-3 subtitle" style={{ textAlign: 'right', position: 'sticky', right: 0, backgroundColor: 'var(--card-bg)', zIndex: 10, boxShadow: '-2px 0 5px rgba(0,0,0,0.05)' }}>Acciones</th>
+                    <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left', whiteSpace: 'nowrap' }}>
+                      <th className="pb-3 subtitle" style={{ paddingRight: '1rem' }}>Nombre</th>
+                      <th className="pb-3 subtitle" style={{ paddingRight: '1rem' }}>Categoría</th>
+                      <th className="pb-3 subtitle" style={{ paddingRight: '1rem' }}>Subcategoría</th>
+                      <th className="pb-3 subtitle" style={{ paddingRight: '1rem' }}>Precio (S/)</th>
+                      <th className="pb-3 subtitle" style={{ paddingRight: '1rem' }}>Días</th>
+                      <th className="pb-3 subtitle" style={{ paddingRight: '1rem' }}>Estado</th>
+                      <th className="pb-3 subtitle" style={{ textAlign: 'right', position: 'sticky', right: 0, backgroundColor: 'var(--card-bg)', zIndex: 10, boxShadow: '-2px 0 5px rgba(0,0,0,0.05)', paddingLeft: '1rem' }}>Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
