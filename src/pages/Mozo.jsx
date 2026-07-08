@@ -709,6 +709,13 @@ export default function Mozo() {
                       <div className="flex justify-between items-center mt-1">
                         <span className="subtitle" style={{ fontSize: '0.8rem' }}>S/{c.item.price.toFixed(2)} c/u</span>
                         <div className="flex items-center gap-3">
+                          {c.status === 'new' && (
+                            <div className="flex items-center" style={{ background: 'var(--surface-color)', borderRadius: '6px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                              <button style={{ padding: '0.1rem 0.6rem', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-primary)', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => { if(c.quantity > 1) updateTableCart(tableKey, cart.map(item => item.id === c.id ? {...item, quantity: item.quantity - 1} : item)) }}>-</button>
+                              <span style={{ padding: '0 0.3rem', fontSize: '0.9rem', fontWeight: 600 }}>{c.quantity || 1}</span>
+                              <button style={{ padding: '0.1rem 0.6rem', border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--text-primary)', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={() => updateTableCart(tableKey, cart.map(item => item.id === c.id ? {...item, quantity: (item.quantity || 1) + 1} : item))}>+</button>
+                            </div>
+                          )}
                           <button className="btn btn-outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', borderColor: c.status === 'sent' ? 'var(--danger-color)' : 'var(--border-color)', color: c.status === 'sent' ? 'var(--danger-color)' : 'inherit' }} onClick={() => removeFromCart(c)}>
                             {c.status === 'sent' ? 'Eliminar' : 'Quitar'}
                           </button>
@@ -765,7 +772,7 @@ export default function Mozo() {
       </div>
 {/* V5: Table Auth Modal */}
       {pendingTableAuth && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="card animate-fade-in" style={{ width: '90vw', maxWidth: '400px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2"><Lock size={20}/> Acceso a la Mesa</h2>
@@ -819,7 +826,7 @@ export default function Mozo() {
 
       {/* V5: Add Item Details & Numpad Modal */}
       {pendingItem && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '90vw', maxWidth: '450px', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="flex justify-between items-center mb-4 pb-4" style={{ borderBottom: '1px solid var(--border-color)' }}>
               <h2 className="title" style={{ fontSize: '1.25rem' }}>{pendingItem.name}</h2>
@@ -870,7 +877,7 @@ export default function Mozo() {
 
       {/* Admin Auth Modal for Voids */}
       {voidItemTarget && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '400px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2 text-danger"><Lock size={20}/> Autorización de Administrador</h2>
@@ -897,7 +904,7 @@ export default function Mozo() {
 
       {/* Headcount Modal */}
       {showHeadcountModal && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="card animate-fade-in" style={{ width: '350px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2"><UserIcon size={20}/> Número de Comensales</h2>
