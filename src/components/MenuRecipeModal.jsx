@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useStore } from '../context/StoreContext';
 import { X, Plus, Trash2, Save } from 'lucide-react';
 
@@ -30,8 +31,8 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
     onClose();
   };
 
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  return createPortal(
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ width: '90%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto', backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)', borderRadius: '12px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.5)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <h2 className="title" style={{ fontSize: '1.1rem', margin: 0 }}>Receta Kardex: {menuItem.name}</h2>
@@ -103,7 +104,8 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
