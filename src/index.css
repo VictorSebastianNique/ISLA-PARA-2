@@ -517,6 +517,45 @@ h1, h2, h3, h4, h5, h6 {
 .animate-slide-left     { animation: slideInLeft 0.35s cubic-bezier(0.4,0,0.2,1) forwards; }
 .animate-pulse-glow     { animation: pulse-glow 2.5s ease-in-out infinite; }
 .animate-spin           { animation: spin 1s linear infinite; }
+.animate-slide-up       { animation: slideUp 0.4s cubic-bezier(0.4,0,0.2,1) forwards; }
+.animate-bounce-in      { animation: bounceIn 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+.animate-float          { animation: float 3s ease-in-out infinite; }
+.animate-num-press      { animation: numPress 0.12s ease-out; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes bounceIn {
+  0%   { opacity: 0; transform: scale(0.3); }
+  50%  { opacity: 1; transform: scale(1.08); }
+  70%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes confettiFall {
+  0%   { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+@keyframes checkPop {
+  0%   { transform: scale(0) rotate(-45deg); opacity: 0; }
+  50%  { transform: scale(1.2) rotate(0deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes numPress {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+
 
 /* ============================================================
    SCROLLBAR PREMIUM
