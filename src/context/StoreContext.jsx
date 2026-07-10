@@ -48,7 +48,17 @@ export const StoreProvider = ({ children }) => {
     const fetchData = async () => {
       try {
         const resGlobal = await fetch('/api/store/global', { headers: getAuthHeaders() });
-        const dataGlobal = await resGlobal.json();
+        let dataGlobal = {};
+        if (resGlobal.status === 401) {
+          // If not logged in, just fetch the public locations for the login screen
+          const resLoc = await fetch('/api/auth/locations');
+          if (resLoc.ok) {
+            const dataLoc = await resLoc.json();
+            dataGlobal = { locations: dataLoc.locations };
+          }
+        } else {
+          dataGlobal = await resGlobal.json();
+        }
         
         let loadedLocations = dataGlobal.locations || [];
         let loadedSuperadmins = dataGlobal.users || [];

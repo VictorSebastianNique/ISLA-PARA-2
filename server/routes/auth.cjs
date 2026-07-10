@@ -57,4 +57,14 @@ router.post('/login', async (req, res, next) => {
   }
 });
 
+router.get('/locations', async (req, res, next) => {
+  try {
+    const globalData = await getGlobalData();
+    const locations = globalData.locations || [];
+    res.json({ success: true, locations });
+  } catch (e) {
+    next(e);
+  }
+});
+
 module.exports = router;

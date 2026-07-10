@@ -111,6 +111,19 @@ const apiPlugin = () => ({
         });
         return;
       }
+      if (req.url === '/api/auth/locations' && req.method === 'GET') {
+        try {
+          const globalPath = path.resolve(process.cwd(), 'db_global.json');
+          let globalDb = {};
+          if (fs.existsSync(globalPath)) globalDb = JSON.parse(fs.readFileSync(globalPath, 'utf-8'));
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ success: true, locations: globalDb.locations || [] }));
+        } catch (e) {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+      }
       
       next();
     });

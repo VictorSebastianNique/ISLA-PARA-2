@@ -903,7 +903,7 @@
     "locationId": "all"
   },
   "developerSettings": {
-    "isSuperAdminIncognito": true,
+    "isSuperAdminIncognito": false,
     "metricsOnlySuperAdmin": false,
     "billingMode": "test",
     "billingToken": "",
