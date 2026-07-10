@@ -41,7 +41,7 @@ export default function Login({ isSuperAdminRoute }) {
     }
   }, [locations, sedeSlug, isSuperAdminRoute]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     
@@ -50,7 +50,7 @@ export default function Login({ isSuperAdminRoute }) {
       return;
     }
 
-    const result = login(username, password, locationId);
+    const result = await login(username, password, locationId);
     if (result.success) {
       const targetPath = (result.user.role === 'superadmin' || result.user.role === 'admin') ? '/admin' : (result.user.role === 'cajera' ? '/caja' : `/${result.user.role}`);
       
