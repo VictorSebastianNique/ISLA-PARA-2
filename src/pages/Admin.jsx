@@ -49,7 +49,20 @@ export default function Admin() {
   
   useEffect(() => {
     if (activeTab === 'auditoria') {
-      fetch('/api/audit/logs').then(res => res.json()).then(data => setAuditLogs(data)).catch(console.error);
+      const token = localStorage.getItem('jwtToken');
+      fetch('/api/audit/logs', {
+        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setAuditLogs(data);
+        } else {
+          console.error('Expected array of audit logs, got:', data);
+          setAuditLogs([]);
+        }
+      })
+      .catch(console.error);
     }
   }, [activeTab]);
 
