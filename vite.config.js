@@ -83,6 +83,34 @@ const apiPlugin = () => ({
         });
         return;
       }
+      if (req.url === '/api/auth/login' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk.toString());
+        req.on('end', () => {
+          try {
+            const { username, password, locId } = JSON.parse(body);
+            const globalPath = path.resolve(process.cwd(), 'db_global.json');
+            let globalDb = {};
+            if (fs.existsSync(globalPath)) globalDb = JSON.parse(fs.readFileSync(globalPath, 'utf-8'));
+            const users = globalDb.users || [];
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            res.setHeader('Content-Type', 'application/json');
+            if (user && user.active && (user.role === 'superadmin' || user.locationId === locId)) {
+              const safeUser = { ...user };
+              delete safeUser.password;
+              res.end(JSON.stringify({ success: true, token: 'mock-jwt-token-local', user: safeUser }));
+            } else {
+              res.statusCode = 401;
+              res.end(JSON.stringify({ success: false, error: 'Credenciales inválidas en modo local' }));
+            }
+          } catch (e) {
+            res.statusCode = 500;
+            res.end(JSON.stringify({ error: e.message }));
+          }
+        });
+        return;
+      }
       
       next();
     });

@@ -3,7 +3,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 const { initMongo, seedMongo, appendAuditLog, getAuditLogs } = require('./db.cjs');
+const authRoutes = require('./routes/auth.cjs');
 const storeRoutes = require('./routes/store.cjs');
+const { requireAuth } = require('./middleware/auth.cjs');
 
 const PORT = process.env.PORT || 3000;
 const DIST_DIR = path.resolve(__dirname, '../dist');
@@ -12,17 +14,20 @@ const app = express();
 
 // Middlewares globales
 app.use(helmet({
-  contentSecurityPolicy: false, // Desactivado por defecto para evitar romper scripts integrados de React/Vite
-  crossOriginEmbedderPolicy: false // Permite cargar imágenes/recursos externos
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
 }));
 app.use(cors());
 app.use(express.json({ limit: '10mb', strict: false }));
 
-// Montar rutas de API
-app.use('/api/store', storeRoutes);
+// Rutas Públicas (Autenticación)
+app.use('/api/auth', authRoutes);
+
+// Rutas de API Protegidas
+app.use('/api/store', requireAuth, storeRoutes);
 
 // Rutas de Auditoría
-app.get('/api/audit/logs', async (req, res, next) => {
+app.get('/api/audit/logs', requireAuth, async (req, res, next) => {
   try {
     const logs = await getAuditLogs();
     res.json(logs);
@@ -31,7 +36,7 @@ app.get('/api/audit/logs', async (req, res, next) => {
   }
 });
 
-app.post('/api/audit/log', async (req, res, next) => {
+app.post('/api/audit/log', requireAuth, async (req, res, next) => {
   try {
     await appendAuditLog(req.body);
     res.json({ success: true });

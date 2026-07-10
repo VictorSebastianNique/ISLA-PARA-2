@@ -39,10 +39,15 @@ export const StoreProvider = ({ children }) => {
   const [customers, setCustomers] = React.useState([]);
   const [promotions, setPromotions] = React.useState([]);
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem('jwtToken');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+  };
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const resGlobal = await fetch('/api/store/global');
+        const resGlobal = await fetch('/api/store/global', { headers: getAuthHeaders() });
         const dataGlobal = await resGlobal.json();
         
         let loadedLocations = dataGlobal.locations || [];
@@ -86,7 +91,7 @@ export const StoreProvider = ({ children }) => {
         let localUsers = [];
 
         if (currentLocId) {
-          const resLocal = await fetch(`/api/store/local/${currentLocId}`);
+          const resLocal = await fetch(`/api/store/local/${currentLocId}`, { headers: getAuthHeaders() });
           if (resLocal.ok) {
              const dataLocal = await resLocal.json();
              localUsers = dataLocal.users || [];
@@ -130,7 +135,7 @@ export const StoreProvider = ({ children }) => {
     const interval = setInterval(async () => {
       try {
         if (Date.now() - lastSaveTime.current < 2500) return;
-        const resGlobal = await fetch(`/api/store/global?t=${Date.now()}`, { cache: 'no-store' });
+        const resGlobal = await fetch(`/api/store/global?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
         
         // Anti-race condition check: If a save occurred while fetching, discard the old fetched data
         if (Date.now() - lastSaveTime.current < 2500) return;
@@ -148,7 +153,7 @@ export const StoreProvider = ({ children }) => {
         
         const locId = localStorage.getItem('currentLocationId');
         if (locId) {
-          const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store' });
+          const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
           if (Date.now() - lastSaveTime.current < 2500) return;
           
           if (resLocal.ok) {
@@ -171,7 +176,7 @@ export const StoreProvider = ({ children }) => {
           if (Date.now() - lastSaveTime.current < 2500) return;
           const locId = localStorage.getItem('currentLocationId');
           if (locId) {
-            const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store' });
+            const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store', headers: getAuthHeaders() });
             if (Date.now() - lastSaveTime.current < 2500) return;
             
             if (resLocal.ok) {
@@ -200,11 +205,14 @@ export const StoreProvider = ({ children }) => {
       lastSaveTime.current = Date.now();
       const locId = localStorage.getItem('currentLocationId') || 'default';
       const endpoint = isGlobal ? `/api/store/global/${key}` : `/api/store/local/${locId}/${key}`;
-      await fetch(endpoint, {
+      const res = await fetch(endpoint, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(value)
       });
+      if (res.status === 401) {
+        logout();
+      }
     } catch (e) {
       console.error(`Error saving ${key} to API:`, e);
     }
@@ -260,49 +268,59 @@ export const StoreProvider = ({ children }) => {
         locationId: localStorage.getItem('currentLocationId') || 'global'
       };
       
-      await fetch('/api/audit/log', {
+      const res = await fetch('/api/audit/log', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
         body: JSON.stringify(logData)
       });
+      if (res.status === 401) {
+        logout();
+      }
     } catch (e) {
       console.error('Failed to log audit event', e);
     }
   };
 
-  const login = (username, password, locId) => {
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-      if (!user.active) return { success: false, error: 'Usuario desactivado' };
-      if (user.role !== 'superadmin' && user.locationId !== locId) {
-         return { success: false, error: 'Usuario no pertenece a esta sucursal' };
-      }
+  const login = async (username, password, locId) => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, locId })
+      });
+      const data = await res.json();
       
-      const currentLoc = localStorage.getItem('currentLocationId');
-      localStorage.setItem('currentLocationId', locId);
-      localStorage.setItem('currentUserData', JSON.stringify(user));
-      
-      // We set currentUser manually to ensure logAudit captures it if state hasn't updated yet, 
-      // but logAudit reads from localStorage as fallback anyway.
-      logAudit('LOGIN', { location: locId });
+      if (data.success) {
+        const currentLoc = localStorage.getItem('currentLocationId');
+        localStorage.setItem('currentLocationId', locId);
+        localStorage.setItem('currentUserData', JSON.stringify(data.user));
+        localStorage.setItem('jwtToken', data.token); // Almacenar JWT Token
+        
+        logAudit('LOGIN', { location: locId });
 
-      if (currentLoc !== locId) {
-        return { success: true, user, needsReload: true };
+        if (currentLoc !== locId) {
+          return { success: true, user: data.user, needsReload: true };
+        } else {
+          setCurrentUser(data.user);
+          return { success: true, user: data.user, needsReload: false };
+        }
       } else {
-        setCurrentUser(user);
-        return { success: true, user, needsReload: false };
+        return { success: false, error: data.error || 'Credenciales inválidas' };
       }
+    } catch (e) {
+      console.error('Login error', e);
+      return { success: false, error: 'Error de conexión al servidor' };
     }
-    return { success: false, error: 'Credenciales inválidas' };
   };
 
   const logout = () => { 
-    if (currentUser) { 
+    if (currentUser) {
       logAudit('LOGOUT', {});
-      localStorage.setItem('lastRole', currentUser.role); 
-    } 
-    setCurrentUser(null); 
-    localStorage.removeItem('currentUserData'); 
+      localStorage.setItem('lastRole', currentUser.role);
+    }
+    localStorage.removeItem('currentUserData');
+    localStorage.removeItem('jwtToken');
+    setCurrentUser(null);
   };
 
   // V3 Actions: Day
@@ -584,7 +602,7 @@ if (barCart.length > 0) {
         const apiUrl = developerSettings?.printServerUrl || 'http://localhost:3000';
         const res = await fetch(`${apiUrl}/api/anular`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({
             saleId: saleToVoid.id,
             documentType: saleToVoid.documentType,
@@ -697,7 +715,7 @@ if (barCart.length > 0) {
         const apiUrl = developerSettings?.printServerUrl || 'http://localhost:3000';
         const res = await fetch(`${apiUrl}/api/nota-credito`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
           body: JSON.stringify({
             saleId: sale.id,
             documentType: sale.documentType,
