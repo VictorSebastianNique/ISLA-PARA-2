@@ -494,14 +494,12 @@ export default function Caja() {
       showAlert(`Comprobante emitido para pedido de ${order.customerName}.`);
       setOrders(prev => prev.map(o => o.id === order.id ? { ...o, receiptEmitted: true } : o));
       
-      addIncome({
-        id: Date.now().toString(),
-        description: `Venta Online - ${order.customerName}`,
-        amount: order.total,
-        method: order.paymentData?.method || 'Transferencia',
-        type: 'Venta',
-        timestamp: new Date().toISOString()
-      });
+      addIncome(
+        order.total,
+        'Venta Online',
+        `Pedido de ${order.customerName}`,
+        order.paymentData?.method || 'Transferencia'
+      );
     }
   };
 
