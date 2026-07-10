@@ -44,7 +44,7 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 100000 }} onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}></div>
           <div 
-            className="animate-fade-in premium-glass-modal custom-select-portal" 
+            className="animate-fade-in custom-select-portal" 
 
             style={{ 
               position: 'fixed', 
@@ -55,7 +55,10 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
               borderRadius: '0.75rem', 
               zIndex: 100001, 
               overflowY: 'auto',
-              maxHeight: '300px'
+              maxHeight: '300px',
+              backgroundColor: 'var(--surface-color)',
+              border: '1px solid var(--border-color)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
             }}
           >
             {options.map(opt => (
@@ -72,7 +75,7 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
                 }}
                 onMouseOver={e => e.currentTarget.style.background = 'var(--surface-hover)'}
                 onMouseOut={e => e.currentTarget.style.background = String(value) === String(opt.value) ? 'var(--primary-subtle)' : 'transparent'}
-                onClick={(e) => { e.stopPropagation(); onChange(opt.value); setIsOpen(false); }}
+                onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); onChange(opt.value); setIsOpen(false); }}
               >
                 {opt.label}
               </div>
