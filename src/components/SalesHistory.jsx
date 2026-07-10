@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useStore } from '../context/StoreContext';
 import { Receipt, X, AlertTriangle, Eye, Search, FileText, CheckSquare, Square } from 'lucide-react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import CustomSelect from './CustomSelect';
 
 const SalesHistory = ({ onViewReceipt }) => {
   const { businessDay, pastDays, voidSaleAndReopenTable, issueCreditNote, users, activeTables, zones } = useStore();
@@ -323,10 +324,15 @@ const SalesHistory = ({ onViewReceipt }) => {
               {isOriginalTableOccupied && (
                 <div>
                   <label style={labelStyle}>Recuperar en Mesa Libre</label>
-                  <select style={inputStyle} value={selectedAlternativeTable} onChange={e => setSelectedAlternativeTable(e.target.value)} required>
-                    <option value="">-- Selecciona Mesa --</option>
-                    {freeTables.map(t => <option key={t.key} value={t.key}>{t.zone} - {t.table}</option>)}
-                  </select>
+                  <CustomSelect 
+                    style={inputStyle} 
+                    value={selectedAlternativeTable} 
+                    onChange={val => setSelectedAlternativeTable(val)}
+                    options={[
+                      { value: '', label: '-- Selecciona Mesa --' },
+                      ...freeTables.map(t => ({ value: t.key, label: `${t.zone} - ${t.table}` }))
+                    ]}
+                  />
                 </div>
               )}
               <div>
@@ -393,10 +399,15 @@ const SalesHistory = ({ onViewReceipt }) => {
               {cnRefacturar && isCnOriginalTableOccupied && (
                 <div>
                   <label style={labelStyle}>Mesa Libre (La Mesa {saleForCN?.table} está ocupada)</label>
-                  <select style={inputStyle} value={cnSelectedAlternativeTable} onChange={e => setCnSelectedAlternativeTable(e.target.value)} required>
-                    <option value="">-- Selecciona una Mesa para cargar los platos --</option>
-                    {freeTablesCn.map(t => <option key={t.key} value={t.key}>{t.zone} - {t.table}</option>)}
-                  </select>
+                  <CustomSelect 
+                    style={inputStyle} 
+                    value={cnSelectedAlternativeTable} 
+                    onChange={val => setCnSelectedAlternativeTable(val)}
+                    options={[
+                      { value: '', label: '-- Selecciona una Mesa para cargar los platos --' },
+                      ...freeTablesCn.map(t => ({ value: t.key, label: `${t.zone} - ${t.table}` }))
+                    ]}
+                  />
                 </div>
               )}
 

@@ -2,6 +2,7 @@ import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
+import CustomSelect from '../components/CustomSelect';
 import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Users, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer, FileDown, AlertTriangle } from 'lucide-react';
 import UserManagement from '../components/UserManagement';
 import { v4 as uuidv4 } from 'uuid';
@@ -593,7 +594,15 @@ export default function Caja() {
     setSelectedQuantities(initialQtys);
     setDiscountType('percent');
     setActiveAccountTab('Todas');
-    setDocumentType('boleta');
+    
+    const firstComp = companies.length > 0 ? companies[0] : null;
+    if (firstComp) {
+      setSelectedCompanyId(firstComp.id);
+      setDocumentType(firstComp.canEmitBoleta !== false ? 'boleta' : (firstComp.canEmitFactura !== false ? 'factura' : 'pedido'));
+    } else {
+      setDocumentType('pedido');
+    }
+
     setCustomerDni('');
     setCustomerRuc('');
     setCustomerName('');
@@ -605,7 +614,6 @@ export default function Caja() {
     setPaid(false);
     setPaidDoc(null);
     setAppliedDiscount(0);
-    if (companies.length > 0) setSelectedCompanyId(companies[0].id);
     window.location.hash = 'cobrar';
   };
 
@@ -1033,11 +1041,22 @@ export default function Caja() {
                           Sin empresas — configura en Admin
                         </div>
                       ) : (
-                        <select style={inputStyle} value={selectedCompanyId} onChange={e => setSelectedCompanyId(e.target.value)}>
-                          {(companies || []).filter(c => c.active !== false).map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                          ))}
-                        </select>
+                        <CustomSelect 
+                          style={inputStyle}
+                          value={selectedCompanyId}
+                          onChange={val => {
+                            setSelectedCompanyId(val);
+                            const comp = companies.find(c => c.id === val);
+                            if (comp) {
+                              setDocumentType(prev => {
+                                if (prev === 'factura' && comp.canEmitFactura === false) return comp.canEmitBoleta !== false ? 'boleta' : 'pedido';
+                                if (prev === 'boleta' && comp.canEmitBoleta === false) return comp.canEmitFactura !== false ? 'factura' : 'pedido';
+                                return prev;
+                              });
+                            }
+                          }}
+                          options={(companies || []).filter(c => c.active !== false).map(c => ({ value: c.id, label: c.name }))}
+                        />
                       )}
                     </div>
                   </div>
@@ -1046,7 +1065,12 @@ export default function Caja() {
                     <div>
                       <label style={labelStyle}>Documento a Emitir</label>
                       <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                        {['boleta', 'factura', 'pedido'].map(type => (
+                        {['boleta', 'factura', 'pedido'].filter(type => {
+                          if (!selectedCompany) return true;
+                          if (type === 'boleta' && selectedCompany.canEmitBoleta === false) return false;
+                          if (type === 'factura' && selectedCompany.canEmitFactura === false) return false;
+                          return true;
+                        }).map(type => (
                           <button key={type} onClick={() => {
                             setDocumentType(type);
                             setCustomerName('');
@@ -1446,11 +1470,12 @@ export default function Caja() {
             <form onSubmit={handleSaveFlow} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div>
                 <label style={labelStyle}>Categoría</label>
-                <select style={inputStyle} value={flowCategory} onChange={(e) => setFlowCategory(e.target.value)}>
-                  {(flowType === 'income' ? incomeCategories : expenseCategories).map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
+                <CustomSelect 
+                  style={inputStyle}
+                  value={flowCategory}
+                  onChange={val => setFlowCategory(val)}
+                  options={(flowType === 'income' ? incomeCategories : expenseCategories).map(cat => ({ value: cat, label: cat }))}
+                />
               </div>
               
               <div>

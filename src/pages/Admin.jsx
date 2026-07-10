@@ -1,12 +1,14 @@
 import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { useStore } from '../context/StoreContext';
 import { Settings, Plus, Trash2, Check, X, User, Edit2, Save, LogOut, Lock, Unlock, Eye, EyeOff, Download, Calendar, ChevronRight, Building2, MapPin, TrendingUp, ShieldAlert, FileText } from 'lucide-react';
 import Metrics from './Metrics';
 import KardexConfigTab from '../components/KardexConfigTab';
 import MenuRecipeModal from '../components/MenuRecipeModal';
 import CrmTab from '../components/CrmTab';
+import CustomSelect from '../components/CustomSelect';
 import { getTodayOperatingWeather } from '../utils/weatherService';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 
@@ -81,8 +83,16 @@ export default function Admin() {
   const [closeDayDeclaredCash, setCloseDayDeclaredCash] = useState('');
   const [closeDayError, setCloseDayError] = useState('');
 
+  // Add Location Modal
+  const [showAddLocationModal, setShowAddLocationModal] = useState(false);
+  
+  // Add Company Modal
+  const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
+
   useEscapeKey(() => {
     if (showCloseDayModal) setShowCloseDayModal(false);
+    if (showAddLocationModal) setShowAddLocationModal(false);
+    if (showAddCompanyModal) setShowAddCompanyModal(false);
   });
 
   const handleOpenCloseDayModal = () => {
@@ -127,14 +137,16 @@ export default function Admin() {
   };
 
   // Companies state
-  const [newCompany, setNewCompany] = useState({ name: '', ruc: '', address: '', boletaSeries: 'B001', boletaNumber: 0, facturaSeries: 'F001', facturaNumber: 0 });
+  const [newCompany, setNewCompany] = useState({ name: '', ruc: '', address: '', boletaSeries: 'B001', boletaNumber: 0, facturaSeries: 'F001', facturaNumber: 0, canEmitBoleta: true, canEmitFactura: true });
   const [editCompany, setEditCompany] = useState(null);
   const [editLocation, setEditLocation] = useState(null);
   const handleAddCompany = (e) => {
     e.preventDefault();
     if (!newCompany.name || !newCompany.ruc) return;
     addCompany({ ...newCompany, active: true });
-    setNewCompany({ name: '', ruc: '', address: '', boletaSeries: 'B001', boletaNumber: 0, facturaSeries: 'F001', facturaNumber: 0 });
+    setNewCompany({ name: '', ruc: '', address: '', boletaSeries: 'B001', boletaNumber: 0, facturaSeries: 'F001', facturaNumber: 0, canEmitBoleta: true, canEmitFactura: true });
+    setShowAddCompanyModal(false);
+    showAlert('Empresa agregada correctamente.', 'success');
   };
   const saveEditCompany = () => { updateCompany(editCompany.id, editCompany.data); setEditCompany(null); };
 
@@ -770,15 +782,21 @@ export default function Admin() {
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Rol</label>
-                    <select className="input mt-1" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} style={{ width: '130px' }}>
-                      <option value="mozo">Mozo</option>
-                      <option value="anfitriona">Anfitriona</option>
-                      <option value="cajera">Cajera</option>
-                      <option value="cocina">Cocina</option>
-                      <option value="bar">Bar</option>
-                      <option value="admin">Admin</option>
-                      {isSuperAdmin && <option value="superadmin">Super Admin</option>}
-                    </select>
+                    <CustomSelect 
+                      className="mt-1"
+                      style={{ width: '130px' }}
+                      value={newUser.role}
+                      onChange={val => setNewUser({...newUser, role: val})}
+                      options={[
+                        { value: 'mozo', label: 'Mozo' },
+                        { value: 'anfitriona', label: 'Anfitriona' },
+                        { value: 'cajera', label: 'Cajera' },
+                        { value: 'cocina', label: 'Cocina' },
+                        { value: 'bar', label: 'Bar' },
+                        { value: 'admin', label: 'Admin' },
+                        ...(isSuperAdmin ? [{ value: 'superadmin', label: 'Super Admin' }] : [])
+                      ]}
+                    />
                   </div>
 
                   <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
@@ -815,15 +833,19 @@ export default function Admin() {
                               </div>
                             </td>
                             <td className="py-2">
-                              <select className="input" value={editUser.data.role} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, role: e.target.value } })}>
-                                <option value="mozo">Mozo</option>
-                                <option value="anfitriona">Anfitriona</option>
-                                <option value="cajera">Cajera</option>
-                                <option value="cocina">Cocina</option>
-                                <option value="bar">Bar</option>
-                                <option value="admin">Admin</option>
-                                {isSuperAdmin && <option value="superadmin">Super Admin</option>}
-                              </select>
+                              <CustomSelect 
+                                value={editUser.data.role}
+                                onChange={val => setEditUser({ ...editUser, data: { ...editUser.data, role: val } })}
+                                options={[
+                                  { value: 'mozo', label: 'Mozo' },
+                                  { value: 'anfitriona', label: 'Anfitriona' },
+                                  { value: 'cajera', label: 'Cajera' },
+                                  { value: 'cocina', label: 'Cocina' },
+                                  { value: 'bar', label: 'Bar' },
+                                  { value: 'admin', label: 'Admin' },
+                                  ...(isSuperAdmin ? [{ value: 'superadmin', label: 'Super Admin' }] : [])
+                                ]}
+                              />
                             </td>
                             <td className="py-2">
                               {editUser.data.role === 'superadmin' ? 'Todas' : (locations.find(l => l.id === editUser.data.locationId)?.name || 'Esta Sede')}
@@ -883,10 +905,15 @@ export default function Admin() {
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Estación</label>
-                    <select className="input mt-1" value={newCat.station} onChange={e => setNewCat({...newCat, station: e.target.value})}>
-                      <option value="cocina">Cocina</option>
-                      <option value="bar">Bar</option>
-                    </select>
+                    <CustomSelect 
+                      className="mt-1"
+                      value={newCat.station}
+                      onChange={val => setNewCat({...newCat, station: val})}
+                      options={[
+                        { value: 'cocina', label: 'Cocina' },
+                        { value: 'bar', label: 'Bar' }
+                      ]}
+                    />
                   </div>
                   <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
                 </form>
@@ -898,10 +925,15 @@ export default function Admin() {
                     {editCat?.id === c.id ? (
                       <div className="flex gap-2 w-full items-center">
                         <input className="input" style={{ flex: 1 }} value={editCat.data.name} onChange={e => setEditCat({ ...editCat, data: { ...editCat.data, name: e.target.value.toUpperCase() } })} />
-                        <select className="input" style={{ width: '120px' }} value={editCat.data.station || 'cocina'} onChange={e => setEditCat({ ...editCat, data: { ...editCat.data, station: e.target.value } })}>
-                          <option value="cocina">Cocina</option>
-                          <option value="bar">Bar</option>
-                        </select>
+                        <CustomSelect 
+                          style={{ width: '120px' }}
+                          value={editCat.data.station || 'cocina'}
+                          onChange={val => setEditCat({ ...editCat, data: { ...editCat.data, station: val } })}
+                          options={[
+                            { value: 'cocina', label: 'Cocina' },
+                            { value: 'bar', label: 'Bar' }
+                          ]}
+                        />
                         <button className="btn btn-primary" style={{ padding: '0.4rem' }} onClick={saveEditCat}><Save size={16}/></button>
                         <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={() => setEditCat(null)}><X size={16}/></button>
                       </div>
@@ -927,49 +959,13 @@ export default function Admin() {
           {/* TAB: LOCALES / SEDES */}
           {activeTab === 'locales' && isSuperAdmin && (
             <div className="animate-fade-in">
-              <div className="card mb-6">
-                <h2 className="title mb-4" style={{ fontSize: '1.25rem' }}>Agregar Nueva Sede</h2>
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const name = e.target.elements.name.value;
-                    const brandName = e.target.elements.brandName.value;
-                    const address = e.target.elements.address.value;
-                    const phone = e.target.elements.phone.value;
-                    const openTime = e.target.elements.openTime.value || '08:00';
-                    const closeTime = e.target.elements.closeTime.value || '22:00';
-                    if (!name) return;
-                    addLocation({ name, brandName, address, phone, openTime, closeTime, id: name });
-                    e.target.reset();
-                  }} 
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4 items-end"
-                >
-                  <div>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Nombre Interno (Sede)</label>
-                    <input name="name" className="input mt-1 w-full" placeholder="Ej. Local Norte" required />
-                  </div>
-                  <div>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Marca (Para Ticket)</label>
-                    <input name="brandName" className="input mt-1 w-full" placeholder="Ej. MI CAFE" />
-                  </div>
-                  <div>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Dirección de la Sede</label>
-                    <input name="address" className="input mt-1 w-full" placeholder="Ej. Av. Sol 123" />
-                  </div>
-                  <div>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Teléfono de la Sede</label>
-                    <input name="phone" className="input mt-1 w-full" placeholder="Ej. 987654321" />
-                  </div>
-                  <div>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Hora Apertura</label>
-                    <input type="time" name="openTime" className="input mt-1 w-full" defaultValue="08:00" />
-                  </div>
-                  <div>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Hora Cierre</label>
-                    <input type="time" name="closeTime" className="input mt-1 w-full" defaultValue="22:00" />
-                  </div>
-                  <button type="submit" className="btn btn-primary h-full md:col-span-2 lg:col-span-1"><Plus size={20}/> Agregar Sede</button>
-                </form>
+              <div className="mb-6 flex justify-between items-center flex-wrap gap-4">
+                <h2 className="title" style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Building2 style={{ color: 'var(--primary-color)' }} /> Locales / Sedes
+                </h2>
+                <button className="btn btn-primary flex items-center gap-2" onClick={() => setShowAddLocationModal(true)}>
+                  <Plus size={18} /> Agregar Sede
+                </button>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -1052,10 +1048,15 @@ export default function Admin() {
                   </div>
                   <div>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Categoría Padre</label>
-                    <select className="input mt-1" value={newSubcat.categoryId} onChange={e => setNewSubcat({...newSubcat, categoryId: e.target.value})} required>
-                      <option value="">Selecciona...</option>
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                    <CustomSelect 
+                      className="mt-1"
+                      value={newSubcat.categoryId}
+                      onChange={val => setNewSubcat({...newSubcat, categoryId: val})}
+                      options={[
+                        { value: '', label: 'Selecciona...' },
+                        ...categories.map(c => ({ value: c.id, label: c.name }))
+                      ]}
+                    />
                   </div>
 
                   <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
@@ -1070,9 +1071,12 @@ export default function Admin() {
                     {editSubcat?.id === s.id ? (
                       <div className="flex gap-2 w-full items-center">
                         <input className="input" style={{ flex: 1 }} value={editSubcat.data.name} onChange={e => setEditSubcat({ ...editSubcat, data: { ...editSubcat.data, name: e.target.value.toUpperCase() } })} />
-                        <select className="input" style={{ width: '150px' }} value={editSubcat.data.categoryId} onChange={e => setEditSubcat({ ...editSubcat, data: { ...editSubcat.data, categoryId: e.target.value } })}>
-                          {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                        </select>
+                        <CustomSelect 
+                          style={{ width: '150px' }}
+                          value={editSubcat.data.categoryId}
+                          onChange={val => setEditSubcat({ ...editSubcat, data: { ...editSubcat.data, categoryId: val } })}
+                          options={categories.map(c => ({ value: c.id, label: c.name }))}
+                        />
                         <button className="btn btn-primary" style={{ padding: '0.4rem' }} onClick={saveEditSubcat}><Save size={16}/></button>
                         <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={() => setEditSubcat(null)}><X size={16}/></button>
                       </div>
@@ -1103,15 +1107,12 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'flex-end' }}>
                   <div style={{ flex: 1, minWidth: '200px' }}>
                     <label className="subtitle mb-2" style={{ fontSize: '0.875rem' }}>Lista de Precios Actual</label>
-                    <select 
-                      className="input w-full" 
-                      value={selectedCatalogId || catalogs?.[0]?.id || ''} 
-                      onChange={e => setSelectedCatalogId(e.target.value)}
-                    >
-                      {catalogs?.map(c => (
-                        <option key={c.id} value={c.id}>{c.name} {c.active ? '(ACTIVA)' : ''}</option>
-                      ))}
-                    </select>
+                    <CustomSelect 
+                      className="w-full"
+                      value={selectedCatalogId || catalogs?.[0]?.id || ''}
+                      onChange={val => setSelectedCatalogId(val)}
+                      options={catalogs?.map(c => ({ value: c.id, label: `${c.name} ${c.active ? '(ACTIVA)' : ''}` })) || []}
+                    />
                   </div>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     {workingCatalog && !workingCatalog.active && (
@@ -1172,17 +1173,27 @@ export default function Admin() {
                   </div>
                   <div style={{ flex: '1 1 150px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Categoría</label>
-                    <select className="input mt-1 w-full" value={newMenu.categoryId} onChange={e => setNewMenu({...newMenu, categoryId: e.target.value, subcategoryId: ''})} required>
-                      <option value="">Selecciona...</option>
-                      {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                    </select>
+                    <CustomSelect 
+                      className="mt-1 w-full"
+                      value={newMenu.categoryId}
+                      onChange={val => setNewMenu({...newMenu, categoryId: val, subcategoryId: ''})}
+                      options={[
+                        { value: '', label: 'Selecciona...' },
+                        ...categories.map(c => ({ value: c.id, label: c.name }))
+                      ]}
+                    />
                   </div>
                   <div style={{ flex: '1 1 150px' }}>
                     <label className="subtitle" style={{ fontSize: '0.875rem' }}>Subcategoría</label>
-                    <select className="input mt-1 w-full" value={newMenu.subcategoryId || ''} onChange={e => setNewMenu({...newMenu, subcategoryId: e.target.value})}>
-                      <option value="">Todas / Ninguna</option>
-                      {subcategories.filter(s => s.categoryId === newMenu.categoryId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                    </select>
+                    <CustomSelect 
+                      className="mt-1 w-full"
+                      value={newMenu.subcategoryId || ''}
+                      onChange={val => setNewMenu({...newMenu, subcategoryId: val})}
+                      options={[
+                        { value: '', label: 'Todas / Ninguna' },
+                        ...subcategories.filter(s => s.categoryId === newMenu.categoryId).map(s => ({ value: s.id, label: s.name }))
+                      ]}
+                    />
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', paddingBottom: '0.5rem', flex: '1 1 180px' }}>
                     <input type="checkbox" checked={newMenu.noDiscount} onChange={e => setNewMenu({...newMenu, noDiscount: e.target.checked})} id="noDiscount" />
@@ -1209,15 +1220,15 @@ export default function Admin() {
                     onChange={e => setMenuSearch(e.target.value)}
                   />
                   {/* Category Filter */}
-                  <select
-                    className="input"
-                    style={{ padding: '0.45rem 0.75rem', fontSize: '0.875rem', width: '150px' }}
+                  <CustomSelect 
+                    style={{ width: '150px' }}
                     value={menuFilterCategory}
-                    onChange={e => setMenuFilterCategory(e.target.value)}
-                  >
-                    <option value="all">Todas las Categorías</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
+                    onChange={val => setMenuFilterCategory(val)}
+                    options={[
+                      { value: 'all', label: 'Todas las Categorías' },
+                      ...categories.map(c => ({ value: c.id, label: c.name }))
+                    ]}
+                  />
                   {/* Status filter */}
                   <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                     {[['all','Todos'],['active','Activos'],['inactive','Inactivos']].map(([val, label]) => (
@@ -1259,16 +1270,22 @@ export default function Admin() {
                             <>
                               <td className="py-2"><input className="input" value={editMenu.data.name} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, name: e.target.value.toUpperCase() } })} /></td>
                               <td className="py-2">
-                                <select className="input" value={editMenu.data.categoryId} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, categoryId: e.target.value } })}>
-                                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                                </select>
+                                <CustomSelect 
+                                  value={editMenu.data.categoryId}
+                                  onChange={val => setEditMenu({ ...editMenu, data: { ...editMenu.data, categoryId: val } })}
+                                  options={categories.map(c => ({ value: c.id, label: c.name }))}
+                                />
                               </td>
 
                               <td className="py-2">
-                                <select className="input" value={editMenu.data.subcategoryId || ''} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, subcategoryId: e.target.value } })}>
-                                  <option value="">Todas / Ninguna</option>
-                                  {subcategories.filter(s => s.categoryId === editMenu.data.categoryId).map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                </select>
+                                <CustomSelect 
+                                  value={editMenu.data.subcategoryId || ''}
+                                  onChange={val => setEditMenu({ ...editMenu, data: { ...editMenu.data, subcategoryId: val } })}
+                                  options={[
+                                    { value: '', label: 'Todas / Ninguna' },
+                                    ...subcategories.filter(s => s.categoryId === editMenu.data.categoryId).map(s => ({ value: s.id, label: s.name }))
+                                  ]}
+                                />
                               </td>
 
                               <td className="py-2"><input type="number" step="0.01" className="input" style={{ width: '100px' }} value={editMenu.data.price} onChange={e => setEditMenu({ ...editMenu, data: { ...editMenu.data, price: e.target.value } })} /></td>
@@ -1483,31 +1500,13 @@ export default function Admin() {
           {/* TAB: EMPRESAS */}
           {activeTab === 'empresas' && (
             <div className="animate-fade-in">
-              <div className="card mb-6">
-                <h2 className="title mb-4" style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Building2 size={20} /> Agregar Empresa Facturadora</h2>
-                <form onSubmit={handleAddCompany} style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'flex-end' }}>
-                  <div style={{ flex: '2 1 200px' }}>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Razón Social *</label>
-                    <input className="input mt-1 w-full" value={newCompany.name} onChange={e => setNewCompany({...newCompany, name: e.target.value.toUpperCase()})} placeholder="EMPRESA S.A.C." required />
-                  </div>
-                  <div style={{ flex: '1 1 130px' }}>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>RUC *</label>
-                    <input className="input mt-1 w-full" value={newCompany.ruc} onChange={e => setNewCompany({...newCompany, ruc: e.target.value.replace(/\D/g, '').slice(0,11)})} placeholder="20XXXXXXXXX" maxLength={11} required />
-                  </div>
-                  <div style={{ flex: '2 1 200px' }}>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Dirección</label>
-                    <input className="input mt-1 w-full" value={newCompany.address} onChange={e => setNewCompany({...newCompany, address: e.target.value})} placeholder="Av. Principal 123" />
-                  </div>
-                  <div style={{ flex: '1 1 100px' }}>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Serie Boleta</label>
-                    <input className="input mt-1 w-full" value={newCompany.boletaSeries} onChange={e => setNewCompany({...newCompany, boletaSeries: e.target.value.toUpperCase().slice(0,4)})} placeholder="B001" maxLength={4} />
-                  </div>
-                  <div style={{ flex: '1 1 100px' }}>
-                    <label className="subtitle" style={{ fontSize: '0.875rem' }}>Serie Factura</label>
-                    <input className="input mt-1 w-full" value={newCompany.facturaSeries} onChange={e => setNewCompany({...newCompany, facturaSeries: e.target.value.toUpperCase().slice(0,4)})} placeholder="F001" maxLength={4} />
-                  </div>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/> Agregar</button>
-                </form>
+              <div className="mb-6 flex justify-between items-center flex-wrap gap-4">
+                <h2 className="title" style={{ fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Building2 style={{ color: 'var(--primary-color)' }} /> Empresas Facturadoras
+                </h2>
+                <button className="btn btn-primary flex items-center gap-2" onClick={() => setShowAddCompanyModal(true)}>
+                  <Plus size={18} /> Agregar Empresa
+                </button>
               </div>
 
               <div className="card">
@@ -1532,22 +1531,42 @@ export default function Admin() {
                               <label className="subtitle" style={{ fontSize: '0.78rem' }}>Dirección</label>
                               <input className="input mt-1 w-full" value={editCompany.data.address || ''} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, address: e.target.value}})} />
                             </div>
-                            <div style={{ flex: '1 1 80px' }}>
-                              <label className="subtitle" style={{ fontSize: '0.78rem' }}>Serie Boleta</label>
-                              <input className="input mt-1 w-full" value={editCompany.data.boletaSeries || 'B001'} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, boletaSeries: e.target.value.toUpperCase().slice(0,4)}})} maxLength={4} />
+                            
+                            <div style={{ flex: '1 1 100%', display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                <input type="checkbox" checked={editCompany.data.canEmitBoleta !== false} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, canEmitBoleta: e.target.checked}})} />
+                                Emite Boleta
+                              </label>
+                              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                <input type="checkbox" checked={editCompany.data.canEmitFactura !== false} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, canEmitFactura: e.target.checked}})} />
+                                Emite Factura
+                              </label>
                             </div>
-                            <div style={{ flex: '1 1 80px' }}>
-                              <label className="subtitle" style={{ fontSize: '0.78rem' }}>Nº Boleta</label>
-                              <input type="number" className="input mt-1 w-full" value={editCompany.data.boletaNumber || 0} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, boletaNumber: parseInt(e.target.value)||0}})} />
-                            </div>
-                            <div style={{ flex: '1 1 80px' }}>
-                              <label className="subtitle" style={{ fontSize: '0.78rem' }}>Serie Factura</label>
-                              <input className="input mt-1 w-full" value={editCompany.data.facturaSeries || 'F001'} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, facturaSeries: e.target.value.toUpperCase().slice(0,4)}})} maxLength={4} />
-                            </div>
-                            <div style={{ flex: '1 1 80px' }}>
-                              <label className="subtitle" style={{ fontSize: '0.78rem' }}>Nº Factura</label>
-                              <input type="number" className="input mt-1 w-full" value={editCompany.data.facturaNumber || 0} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, facturaNumber: parseInt(e.target.value)||0}})} />
-                            </div>
+
+                            {editCompany.data.canEmitBoleta !== false && (
+                              <>
+                                <div style={{ flex: '1 1 80px' }}>
+                                  <label className="subtitle" style={{ fontSize: '0.78rem' }}>Serie Boleta</label>
+                                  <input className="input mt-1 w-full" value={editCompany.data.boletaSeries || 'B001'} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, boletaSeries: e.target.value.toUpperCase().slice(0,4)}})} maxLength={4} />
+                                </div>
+                                <div style={{ flex: '1 1 80px' }}>
+                                  <label className="subtitle" style={{ fontSize: '0.78rem' }}>Nº Boleta</label>
+                                  <input type="number" className="input mt-1 w-full" value={editCompany.data.boletaNumber || 0} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, boletaNumber: parseInt(e.target.value)||0}})} />
+                                </div>
+                              </>
+                            )}
+                            {editCompany.data.canEmitFactura !== false && (
+                              <>
+                                <div style={{ flex: '1 1 80px' }}>
+                                  <label className="subtitle" style={{ fontSize: '0.78rem' }}>Serie Factura</label>
+                                  <input className="input mt-1 w-full" value={editCompany.data.facturaSeries || 'F001'} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, facturaSeries: e.target.value.toUpperCase().slice(0,4)}})} maxLength={4} />
+                                </div>
+                                <div style={{ flex: '1 1 80px' }}>
+                                  <label className="subtitle" style={{ fontSize: '0.78rem' }}>Nº Factura</label>
+                                  <input type="number" className="input mt-1 w-full" value={editCompany.data.facturaNumber || 0} onChange={e => setEditCompany({...editCompany, data: {...editCompany.data, facturaNumber: parseInt(e.target.value)||0}})} />
+                                </div>
+                              </>
+                            )}
                             <button className="btn btn-primary" style={{ padding: '0.5rem' }} onClick={saveEditCompany}><Save size={16}/></button>
                             <button className="btn btn-outline" style={{ padding: '0.5rem' }} onClick={() => setEditCompany(null)}><X size={16}/></button>
                           </div>
@@ -1560,8 +1579,12 @@ export default function Admin() {
                               </div>
                               <p className="subtitle" style={{ fontSize: '0.8rem', marginTop: '0.2rem' }}>RUC: <strong>{c.ruc}</strong>{c.address ? ` • ${c.address}` : ''}</p>
                               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-                                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Boleta: <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{c.boletaSeries || 'B001'}-{String((c.boletaNumber||0)+1).padStart(8,'0')}</span> (siguiente)</span>
-                                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Factura: <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{c.facturaSeries || 'F001'}-{String((c.facturaNumber||0)+1).padStart(8,'0')}</span> (siguiente)</span>
+                                {c.canEmitBoleta !== false && (
+                                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Boleta: <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{c.boletaSeries || 'B001'}-{String((c.boletaNumber||0)+1).padStart(8,'0')}</span> (siguiente)</span>
+                                )}
+                                {c.canEmitFactura !== false && (
+                                  <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>Factura: <span style={{ color: 'var(--primary-color)', fontWeight: 600 }}>{c.facturaSeries || 'F001'}-{String((c.facturaNumber||0)+1).padStart(8,'0')}</span> (siguiente)</span>
+                                )}
                               </div>
                             </div>
                             <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -1613,6 +1636,155 @@ export default function Admin() {
           catalogId={workingCatalog.id}
           onClose={() => setRecipeMenu(null)}
         />
+      )}
+
+      {showAddLocationModal && createPortal(
+        <div className="modal-overlay animate-fade-in" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="modal-content animate-bounce-in premium-glass-modal" style={{ padding: '2rem', borderRadius: '1.25rem', width: '100%', maxWidth: '500px' }}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="title" style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Building2 style={{ color: 'var(--primary-color)' }} /> Agregar Nueva Sede
+              </h3>
+              <button onClick={() => setShowAddLocationModal(false)} className="btn btn-outline" style={{ padding: '0.5rem', color: 'var(--text-secondary)', border: 'none' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                const name = e.target.elements.name.value;
+                const brandName = e.target.elements.brandName.value;
+                const address = e.target.elements.address.value;
+                const phone = e.target.elements.phone.value;
+                const openTime = e.target.elements.openTime.value || '08:00';
+                const closeTime = e.target.elements.closeTime.value || '22:00';
+                if (!name) return;
+                addLocation({ name, brandName, address, phone, openTime, closeTime, id: name });
+                e.target.reset();
+                setShowAddLocationModal(false);
+                showAlert('Sede agregada correctamente.', 'success');
+              }} 
+              className="flex flex-col gap-4"
+            >
+              <div>
+                <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Nombre Interno (Sede)</label>
+                <input name="name" className="input w-full" placeholder="Ej. Local Norte" required />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Marca (Para Ticket)</label>
+                  <input name="brandName" className="input w-full" placeholder="Ej. MI CAFE" />
+                </div>
+                <div>
+                  <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Teléfono</label>
+                  <input name="phone" className="input w-full" placeholder="Ej. 987654321" />
+                </div>
+              </div>
+              <div>
+                <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Dirección de la Sede</label>
+                <input name="address" className="input w-full" placeholder="Ej. Av. Sol 123" />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Hora Apertura</label>
+                  <input type="time" name="openTime" className="input w-full" defaultValue="08:00" />
+                </div>
+                <div>
+                  <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Hora Cierre</label>
+                  <input type="time" name="closeTime" className="input w-full" defaultValue="22:00" />
+                </div>
+              </div>
+              
+              <div className="flex justify-end gap-2 mt-4 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setShowAddLocationModal(false)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary flex items-center gap-2"><Plus size={18}/> Agregar Sede</button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {showAddCompanyModal && createPortal(
+        <div className="modal-overlay animate-fade-in" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div className="modal-content animate-bounce-in premium-glass-modal" style={{ padding: '2rem', borderRadius: '1.25rem', width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="title" style={{ margin: 0, fontSize: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Building2 style={{ color: 'var(--primary-color)' }} /> Agregar Empresa Facturadora
+              </h3>
+              <button onClick={() => setShowAddCompanyModal(false)} className="btn btn-outline" style={{ padding: '0.5rem', color: 'var(--text-secondary)', border: 'none' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <form onSubmit={handleAddCompany} className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Razón Social *</label>
+                  <input className="input w-full" value={newCompany.name} onChange={e => setNewCompany({...newCompany, name: e.target.value.toUpperCase()})} placeholder="EMPRESA S.A.C." required />
+                </div>
+                <div>
+                  <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>RUC *</label>
+                  <input className="input w-full" value={newCompany.ruc} onChange={e => {
+                    const rucVal = e.target.value.replace(/\D/g, '').slice(0,11);
+                    // Automatically disable factura for RUC 10
+                    const isRuc10 = rucVal.startsWith('10');
+                    setNewCompany({
+                      ...newCompany, 
+                      ruc: rucVal,
+                      canEmitFactura: isRuc10 ? false : newCompany.canEmitFactura
+                    });
+                  }} placeholder="20XXXXXXXXX" maxLength={11} required />
+                </div>
+              </div>
+              
+              <div>
+                <label className="subtitle" style={{ fontSize: '0.875rem', marginBottom: '0.5rem', display: 'block' }}>Dirección</label>
+                <input className="input w-full" value={newCompany.address} onChange={e => setNewCompany({...newCompany, address: e.target.value})} placeholder="Av. Principal 123" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mt-2" style={{ background: 'var(--bg-color)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+                    <input type="checkbox" checked={newCompany.canEmitBoleta} onChange={e => setNewCompany({...newCompany, canEmitBoleta: e.target.checked})} />
+                    Emite Boleta
+                  </label>
+                  {newCompany.canEmitBoleta && (
+                    <div>
+                      <label className="subtitle" style={{ fontSize: '0.875rem', display: 'block' }}>Serie Boleta</label>
+                      <input className="input mt-1 w-full" value={newCompany.boletaSeries} onChange={e => setNewCompany({...newCompany, boletaSeries: e.target.value.toUpperCase().slice(0,4)})} placeholder="B001" maxLength={4} />
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem', fontWeight: 600, marginBottom: '0.5rem', color: newCompany.ruc.startsWith('10') ? 'var(--text-secondary)' : 'inherit' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={newCompany.canEmitFactura} 
+                      onChange={e => setNewCompany({...newCompany, canEmitFactura: e.target.checked})} 
+                      disabled={newCompany.ruc.startsWith('10')}
+                    />
+                    Emite Factura {newCompany.ruc.startsWith('10') && <span style={{ fontSize: '0.75rem', fontWeight: 400 }}>(No permitido)</span>}
+                  </label>
+                  {newCompany.canEmitFactura && (
+                    <div>
+                      <label className="subtitle" style={{ fontSize: '0.875rem', display: 'block' }}>Serie Factura</label>
+                      <input className="input mt-1 w-full" value={newCompany.facturaSeries} onChange={e => setNewCompany({...newCompany, facturaSeries: e.target.value.toUpperCase().slice(0,4)})} placeholder="F001" maxLength={4} />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 mt-4 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
+                <button type="button" className="btn btn-outline" onClick={() => setShowAddCompanyModal(false)}>Cancelar</button>
+                <button type="submit" className="btn btn-primary flex items-center gap-2"><Plus size={18}/> Agregar Empresa</button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
       )}
 
     </div>

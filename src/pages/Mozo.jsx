@@ -9,6 +9,7 @@ import SplitBillModal from '../components/SplitBillModal';
 import PrintReceipt from '../components/PrintReceipt';
 import PrintOptionModal from '../components/PrintOptionModal';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import CustomSelect from '../components/CustomSelect';
 
 export default function Mozo() {
   const { showAlert } = useAlert();
@@ -798,12 +799,15 @@ export default function Mozo() {
             <form onSubmit={handleTableAuth} className="flex flex-col gap-4">
               <div>
                 <label className="subtitle" style={{ fontSize: '0.875rem' }}>Selecciona tu Usuario</label>
-                <select className="input mt-1 w-full" value={authSelectedUser} onChange={e => setAuthSelectedUser(e.target.value)} required>
-                  <option value="">-- Elige un Mozo --</option>
-                  {users.filter(u => u.role === 'mozo' || u.role === 'admin' || u.role === 'superadmin').map(u => (
-                    <option key={u.id} value={u.id}>{u.name}</option>
-                  ))}
-                </select>
+                <CustomSelect 
+                  className="mt-1 w-full"
+                  value={authSelectedUser}
+                  onChange={val => setAuthSelectedUser(val)}
+                  options={[
+                    { value: '', label: '-- Elige un Mozo --' },
+                    ...users.filter(u => u.role === 'mozo' || u.role === 'admin' || u.role === 'superadmin').map(u => ({ value: u.id, label: u.name }))
+                  ]}
+                />
               </div>
               <div>
                 <label className="subtitle" style={{ fontSize: '0.875rem' }}>Contraseña (PIN)</label>

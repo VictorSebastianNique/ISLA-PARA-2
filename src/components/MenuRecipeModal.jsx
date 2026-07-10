@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useStore } from '../context/StoreContext';
 import { X, Plus, Trash2, Save } from 'lucide-react';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import CustomSelect from './CustomSelect';
 
 const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
   useEscapeKey(onClose);
@@ -34,8 +35,8 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
   };
 
   return createPortal(
-    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="glass-card" style={{ width: '90%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto', borderRadius: '12px', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.5)' }}>
+    <div className="modal-overlay animate-fade-in" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+      <div className="modal-content animate-bounce-in premium-glass-modal" style={{ width: '100%', maxWidth: '450px', padding: '1.5rem', maxHeight: '90vh', overflowY: 'auto', borderRadius: '1.25rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
           <h2 className="title" style={{ fontSize: '1.1rem', margin: 0 }}>Receta Kardex: {menuItem.name}</h2>
           <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={onClose}><X size={16} /></button>
@@ -75,12 +76,14 @@ const MenuRecipeModal = ({ menuItem, catalogId, onClose }) => {
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px' }}>
               <label className="subtitle" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.2rem' }}>Agregar Insumo</label>
-              <select className="input" style={{ width: '100%', padding: '0.5rem' }} value={newItemId} onChange={e => setNewItemId(e.target.value)}>
-                <option value="">Seleccione...</option>
-                {kardexItems.filter(k => k.active !== false).map(k => (
-                  <option key={k.id} value={k.id}>{k.name}</option>
-                ))}
-              </select>
+              <CustomSelect 
+                value={newItemId} 
+                onChange={setNewItemId}
+                options={[
+                  { value: '', label: 'Seleccione...' },
+                  ...kardexItems.filter(k => k.active !== false).map(k => ({ value: k.id, label: k.name }))
+                ]}
+              />
             </div>
             <div style={{ width: '80px' }}>
               <label className="subtitle" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.2rem' }}>Cant.</label>

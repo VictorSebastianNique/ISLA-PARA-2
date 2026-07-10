@@ -1,6 +1,7 @@
 import React, { useState, memo } from 'react';
 import { Plus, Eye, EyeOff, Save, Edit2, X } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import CustomSelect from './CustomSelect';
 
 const UserManagement = memo(() => {
   const { users, addUser, updateUser } = useStore();
@@ -56,12 +57,18 @@ const UserManagement = memo(() => {
           </div>
           <div>
             <label className="subtitle" style={{ fontSize: '0.875rem' }}>Rol</label>
-            <select className="input mt-1" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} style={{ width: '130px' }}>
-              <option value="mozo">Mozo</option>
-              <option value="cocina">Cocina</option>
-              <option value="bar">Bar</option>
-              <option value="cajera">Cajera</option>
-            </select>
+            <CustomSelect 
+              className="mt-1"
+              style={{ width: '130px' }}
+              value={newUser.role}
+              onChange={val => setNewUser({...newUser, role: val})}
+              options={[
+                { value: 'mozo', label: 'Mozo' },
+                { value: 'cocina', label: 'Cocina' },
+                { value: 'bar', label: 'Bar' },
+                { value: 'cajera', label: 'Cajera' }
+              ]}
+            />
           </div>
           <button type="submit" className="btn btn-primary" style={{ padding: '0.75rem 1.5rem' }}><Plus size={20}/></button>
         </form>
@@ -96,12 +103,16 @@ const UserManagement = memo(() => {
                         </div>
                       </td>
                       <td className="py-2">
-                        <select className="input" value={editUser.data.role} onChange={e => setEditUser({ ...editUser, data: { ...editUser.data, role: e.target.value } })}>
-                          <option value="mozo">Mozo</option>
-                          <option value="cocina">Cocina</option>
-                          <option value="bar">Bar</option>
-                          <option value="cajera">Cajera</option>
-                        </select>
+                        <CustomSelect 
+                          value={editUser.data.role}
+                          onChange={val => setEditUser({ ...editUser, data: { ...editUser.data, role: val } })}
+                          options={[
+                            { value: 'mozo', label: 'Mozo' },
+                            { value: 'cocina', label: 'Cocina' },
+                            { value: 'bar', label: 'Bar' },
+                            { value: 'cajera', label: 'Cajera' }
+                          ]}
+                        />
                       </td>
                       <td className="py-2" style={{ textAlign: 'right' }}>
                         <button onClick={handleSaveUser} className="btn btn-primary" style={{ padding: '0.4rem 0.6rem' }}><Save size={16}/></button>

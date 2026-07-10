@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { UtensilsCrossed, User, Lock, MapPin } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 export default function Login({ isSuperAdminRoute }) {
   const navigate = useNavigate();
@@ -95,17 +96,16 @@ export default function Login({ isSuperAdminRoute }) {
               <label className="subtitle mb-1" style={{ display: 'block', fontSize: '0.875rem' }}>Sucursal por Defecto</label>
               <div className="flex items-center" style={{ position: 'relative' }}>
                 <MapPin size={18} style={{ position: 'absolute', left: '1rem', color: 'var(--text-secondary)' }} />
-                <select
-                  className="input"
+                <CustomSelect
+                  className="w-full"
                   style={{ paddingLeft: '2.5rem', appearance: 'none', cursor: 'pointer' }}
                   value={locationId}
-                  onChange={e => setLocationId(e.target.value)}
-                >
-                  <option value="">-- Sin sucursal seleccionada --</option>
-                  {locations.map(loc => (
-                    <option key={loc.id} value={loc.id}>{loc.name}</option>
-                  ))}
-                </select>
+                  onChange={val => setLocationId(val)}
+                  options={[
+                    { value: '', label: 'Selecciona tu Sede' },
+                    ...locations.map(loc => ({ value: loc.id, label: loc.name }))
+                  ]}
+                />
               </div>
             </div>
           )}

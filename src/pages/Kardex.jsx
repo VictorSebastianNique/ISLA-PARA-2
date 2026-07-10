@@ -4,6 +4,7 @@ import { useStore } from '../context/StoreContext';
 import { LogOut, Save, ArrowLeft, ClipboardList } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import PageHeader from '../components/PageHeader';
+import CustomSelect from '../components/CustomSelect';
 
 export default function Kardex() {
   const { showAlert } = useAlert();
@@ -68,19 +69,18 @@ export default function Kardex() {
         subtitle="Control diario de porciones e insumos"
         actions={
           <>
-            <select 
-              className="input" 
+            <CustomSelect 
               value={selectedDateId} 
-              onChange={(e) => setSelectedDateId(e.target.value)}
+              onChange={val => setSelectedDateId(val)}
               style={{ width: 'auto', minWidth: '200px' }}
-            >
-              <option value="current">Día Actual {businessDay?.isOpen ? '(Abierto)' : '(Cerrado)'}</option>
-              {pastDays?.map(d => (
-                <option key={d.id} value={d.id}>
-                  {new Date(d.startTime).toLocaleDateString()} - {new Date(d.endTime || d.startTime).toLocaleDateString()}
-                </option>
-              ))}
-            </select>
+              options={[
+                { value: 'current', label: `Día Actual ${businessDay?.isOpen ? '(Abierto)' : '(Cerrado)'}` },
+                ...(pastDays || []).map(d => ({
+                  value: d.id,
+                  label: `${new Date(d.startTime).toLocaleDateString()} - ${new Date(d.endTime || d.startTime).toLocaleDateString()}`
+                }))
+              ]}
+            />
             {!isReadOnly && (
               <button className="btn btn-primary flex items-center gap-2" onClick={handleSaveKardex}>
                 <Save size={18} /> Guardar Kardex

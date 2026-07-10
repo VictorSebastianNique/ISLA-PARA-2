@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import CustomSelect from './CustomSelect';
 
 const KARDEX_CATEGORIES = ['ENTRADAS', 'GUISOS', 'FRITURAS', 'PESCADOS Y MARISCOS', 'OTROS'];
 
@@ -55,13 +56,11 @@ const KardexConfigTab = () => {
           </div>
           <div className="form-group">
             <label>Categoría Kardex</label>
-            <select 
-              className="input" 
+            <CustomSelect 
               value={formData.category} 
-              onChange={e => setFormData({ ...formData, category: e.target.value })}
-            >
-              {KARDEX_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
+              onChange={val => setFormData({ ...formData, category: val })}
+              options={KARDEX_CATEGORIES.map(c => ({ value: c, label: c }))}
+            />
           </div>
           <div className="form-group flex items-center gap-2">
             <input 

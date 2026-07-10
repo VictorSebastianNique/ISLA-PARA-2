@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin, Cloud, HardDrive, RefreshCw, FileText, AlertTriangle, Eye, EyeOff, Printer, LayoutDashboard } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
 
 export default function DeveloperConfig() {
   const { showAlert } = useAlert();
@@ -339,32 +340,32 @@ export default function DeveloperConfig() {
                 
                 <div style={{ marginBottom: '1rem' }}>
                   <label style={{ fontSize: '0.75rem', color: '#888' }}>Seleccionar Empresa</label>
-                  <select 
-                    className="input w-full"
+                  <CustomSelect 
+                    className="w-full"
                     style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', marginTop: '0.2rem' }}
                     value={selectedBillingCompany}
-                    onChange={(e) => setSelectedBillingCompany(e.target.value)}
-                  >
-                    <option value="">-- Seleccione --</option>
-                    {(companies || []).map(c => (
-                      <option key={c.id} value={c.id}>{c.name} ({c.ruc})</option>
-                    ))}
-                  </select>
+                    onChange={val => setSelectedBillingCompany(val)}
+                    options={[
+                      { value: '', label: '-- Seleccione --' },
+                      ...(companies || []).map(c => ({ value: c.id, label: `${c.name} (${c.ruc})` }))
+                    ]}
+                  />
                 </div>
 
                 {selectedBillingCompany && (
                   <>
                     <div style={{ marginBottom: '1rem' }}>
                       <label style={{ fontSize: '0.75rem', color: '#888' }}>Proveedor API</label>
-                      <select 
-                        className="input w-full"
+                      <CustomSelect 
+                        className="w-full"
                         style={{ backgroundColor: '#111', color: '#fff', borderColor: '#333', marginTop: '0.2rem' }}
                         value={companyCreds.provider}
-                        onChange={(e) => setCompanyCreds({...companyCreds, provider: e.target.value})}
-                      >
-                        <option value="Vercel API">API Vercel Propia</option>
-                        <option value="Nubefact">Nubefact</option>
-                      </select>
+                        onChange={val => setCompanyCreds({...companyCreds, provider: val})}
+                        options={[
+                          { value: 'Vercel API', label: 'API Vercel Propia' },
+                          { value: 'Nubefact', label: 'Nubefact' }
+                        ]}
+                      />
                     </div>
 
                     <div style={{ marginBottom: '1rem' }}>
@@ -476,16 +477,13 @@ export default function DeveloperConfig() {
 
                 <div className="mb-4">
                   <label style={{ fontSize: '0.8rem', color: '#aaa', display: 'block', marginBottom: '0.5rem' }}>Seleccionar Sede a configurar:</label>
-                  <select 
-                    className="input w-full md:w-1/2" 
+                  <CustomSelect 
+                    className="w-full md:w-1/2" 
                     value={selectedPrinterLocation} 
-                    onChange={(e) => setSelectedPrinterLocation(e.target.value)}
+                    onChange={val => setSelectedPrinterLocation(val)}
                     style={{ backgroundColor: '#000', color: '#fff', borderColor: '#333' }}
-                  >
-                    {locations.map(loc => (
-                      <option key={loc.id} value={loc.id}>{loc.name}</option>
-                    ))}
-                  </select>
+                    options={locations.map(loc => ({ value: loc.id, label: loc.name }))}
+                  />
                 </div>
                 
                 <div className="grid grid-cols-1 md-grid-cols-3 gap-4">

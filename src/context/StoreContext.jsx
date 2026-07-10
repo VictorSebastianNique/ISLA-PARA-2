@@ -37,6 +37,7 @@ export const StoreProvider = ({ children }) => {
   const [developerSettings, setDeveloperSettings] = React.useState(defaultDevSettings);
   const [kardexItems, setKardexItems] = React.useState([]);
   const [customers, setCustomers] = React.useState([]);
+  const [promotions, setPromotions] = React.useState([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -79,6 +80,7 @@ export const StoreProvider = ({ children }) => {
         }
         if (dataGlobal.kardexItems) setKardexItems(dataGlobal.kardexItems);
         if (dataGlobal.customers) setCustomers(dataGlobal.customers);
+        if (dataGlobal.promotions) setPromotions(dataGlobal.promotions);
 
         const currentLocId = localStorage.getItem('currentLocationId');
         let localUsers = [];
@@ -129,18 +131,30 @@ export const StoreProvider = ({ children }) => {
       try {
         if (Date.now() - lastSaveTime.current < 2500) return;
         const resGlobal = await fetch(`/api/store/global?t=${Date.now()}`, { cache: 'no-store' });
+        
+        // Anti-race condition check: If a save occurred while fetching, discard the old fetched data
+        if (Date.now() - lastSaveTime.current < 2500) return;
+        
         if (resGlobal.ok) {
           const dataGlobal = await resGlobal.json();
+          // Another check just in case parsing took time
+          if (Date.now() - lastSaveTime.current < 2500) return;
+          
           if (dataGlobal.categories) setCategories(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.categories) ? dataGlobal.categories : prev);
           if (dataGlobal.subcategories) setSubcategories(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.subcategories) ? dataGlobal.subcategories : prev);
           if (dataGlobal.catalogs) setCatalogs(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.catalogs) ? dataGlobal.catalogs : prev);
+          if (dataGlobal.promotions) setPromotions(prev => JSON.stringify(prev) !== JSON.stringify(dataGlobal.promotions) ? dataGlobal.promotions : prev);
         }
         
         const locId = localStorage.getItem('currentLocationId');
         if (locId) {
           const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store' });
+          if (Date.now() - lastSaveTime.current < 2500) return;
+          
           if (resLocal.ok) {
             const dataLocal = await resLocal.json();
+            if (Date.now() - lastSaveTime.current < 2500) return;
+            
             if (dataLocal.menuStatus) setMenuStatus(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.menuStatus) ? dataLocal.menuStatus : prev);
             if (dataLocal.orders) setOrders(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.orders) ? dataLocal.orders : prev);
             if (dataLocal.businessDay) setBusinessDay(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.businessDay) ? dataLocal.businessDay : prev);
@@ -158,8 +172,12 @@ export const StoreProvider = ({ children }) => {
           const locId = localStorage.getItem('currentLocationId');
           if (locId) {
             const resLocal = await fetch(`/api/store/local/${locId}?t=${Date.now()}`, { cache: 'no-store' });
+            if (Date.now() - lastSaveTime.current < 2500) return;
+            
             if (resLocal.ok) {
               const dataLocal = await resLocal.json();
+              if (Date.now() - lastSaveTime.current < 2500) return;
+              
               if (dataLocal.menuStatus) setMenuStatus(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.menuStatus) ? dataLocal.menuStatus : prev);
               if (dataLocal.orders) setOrders(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.orders) ? dataLocal.orders : prev);
               if (dataLocal.businessDay) setBusinessDay(prev => JSON.stringify(prev) !== JSON.stringify(dataLocal.businessDay) ? dataLocal.businessDay : prev);
@@ -196,6 +214,7 @@ export const StoreProvider = ({ children }) => {
   React.useEffect(() => { if (!loading && locations.length > 0) saveState('locations', locations, true); }, [locations, loading]);
   React.useEffect(() => { if (!loading && kardexItems.length > 0) saveState('kardexItems', kardexItems, true); }, [kardexItems, loading]);
   React.useEffect(() => { if (!loading && customers.length > 0) saveState('customers', customers, true); }, [customers, loading]);
+  React.useEffect(() => { if (!loading && promotions.length > 0) saveState('promotions', promotions, true); }, [promotions, loading]);
   
   // Custom user saving to split superadmins and locals
   React.useEffect(() => { 
@@ -865,6 +884,7 @@ if (barCart.length > 0) {
       login, logout, logAudit,
       users, addUser: addItem(setUsers), updateUser: updateItem(setUsers), deleteUser: deleteItem(setUsers),
       customers, addCustomer: addItem(setCustomers), updateCustomer: updateItem(setCustomers), deleteCustomer: deleteItem(setCustomers), updateCustomerPoints,
+      promotions, addPromotion: addItem(setPromotions), updatePromotion: updateItem(setPromotions), deletePromotion: deleteItem(setPromotions),
       locations, addLocation: addItem(setLocations), updateLocation: updateItem(setLocations), deleteLocation: deleteItem(setLocations),
       categories, addCategory: addItem(setCategories), updateCategory: updateItem(setCategories), deleteCategory: deleteItem(setCategories),
       subcategories, addSubcategory: addItem(setSubcategories), updateSubcategory: updateItem(setSubcategories), deleteSubcategory: deleteItem(setSubcategories),

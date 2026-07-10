@@ -3,7 +3,8 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { useEscapeKey } from '../hooks/useEscapeKey';
-import { ShoppingCart, Search, User, ChevronLeft, Plus, Minus, X, Check, MapPin, Star, QrCode, ArrowRight, LogOut, Coffee, Pizza, Croissant, CakeSlice, CreditCard, Banknote, Smartphone, Clock, Sparkles, Gift, TrendingUp, ChefHat, Truck, Store, Phone } from 'lucide-react';
+import CustomSelect from '../components/CustomSelect';
+import { ShoppingCart, Search, User, ChevronLeft, Plus, Minus, X, Check, MapPin, Star, QrCode, ArrowRight, LogOut, Coffee, Pizza, Croissant, CakeSlice, CreditCard, Banknote, Smartphone, Clock, Sparkles, Gift, TrendingUp, ChefHat, Truck, Store, Phone, Tag, BellRing } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 
 // --- Helper: Category visual mapping ---
@@ -69,7 +70,7 @@ const LEVEL_THEMES = {
 export default function CustomerApp() {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
-  const { locations, menu, categories, subcategories, customers, addCustomer, orders, setOrders, updateCustomerPoints, updateOrderStatus, menuStatus, registerOnlineSale } = useStore();
+  const { locations, menu, categories, subcategories, customers, addCustomer, orders, setOrders, updateCustomerPoints, updateOrderStatus, menuStatus, registerOnlineSale, promotions } = useStore();
 
   const [currentScreen, setCurrentScreen] = useState('login');
   const [loggedCustomer, setLoggedCustomer] = useState(null);
@@ -85,6 +86,7 @@ export default function CustomerApp() {
   const [selectedSubcat, setSelectedSubcat] = useState('all');
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [selectedPromo, setSelectedPromo] = useState(null);
 
   useEscapeKey(() => {
     if (isCartOpen) setIsCartOpen(false);
@@ -130,6 +132,28 @@ export default function CustomerApp() {
     if (!loggedCustomer || !orders) return [];
     return orders.filter(o => o.customerId === loggedCustomer.id && o.status !== 'completed' && o.status !== 'cancelled').sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
   }, [orders, loggedCustomer]);
+
+  const applicablePromotions = useMemo(() => {
+    if (!loggedCustomer || !promotions) return [];
+    return promotions.filter(p => p.isActive && p.targetLevels.includes(loggedCustomer.level));
+  }, [promotions, loggedCustomer]);
+
+  useEffect(() => {
+    if (applicablePromotions.length > 0 && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    const lastCount = parseInt(localStorage.getItem('promoCount') || '0');
+    if (applicablePromotions.length > lastCount) {
+      showAlert('¡Tienes nuevas promociones exclusivas!', 'success');
+      if (Notification.permission === 'granted') {
+        new Notification('¡Nueva Promoción en Cafetería!', {
+          body: applicablePromotions[applicablePromotions.length - 1].title,
+          icon: '/favicon.svg'
+        });
+      }
+    }
+    localStorage.setItem('promoCount', applicablePromotions.length.toString());
+  }, [applicablePromotions.length]);
 
   // === AUTH ===
   const handleAuth = (e) => {
@@ -191,7 +215,28 @@ export default function CustomerApp() {
     setCart(prev => prev.map(i => (i.item.id === id && (i.details || '') === details) ? { ...i, quantity: i.quantity + 1 } : i));
   };
 
-  const cartTotal = cart.reduce((sum, i) => sum + (i.item.price * i.quantity), 0);
+  const cartSubTotal = cart.reduce((sum, i) => sum + (i.item.price * i.quantity), 0);
+
+  const discountAmount = useMemo(() => {
+    if (!selectedPromo) return 0;
+    if (selectedPromo.discountType === 'percentage') {
+      return cartSubTotal * (selectedPromo.discountValue / 100);
+    }
+    if (selectedPromo.discountType === 'fixed') {
+      return Math.min(cartSubTotal, parseFloat(selectedPromo.discountValue || 0));
+    }
+    if (selectedPromo.discountType === '2x1') {
+      let pairsDiscount = 0;
+      cart.forEach(c => {
+        const pairs = Math.floor(c.quantity / 2);
+        pairsDiscount += pairs * c.item.price;
+      });
+      return Math.min(cartSubTotal, pairsDiscount);
+    }
+    return 0; // free_delivery handled separately if needed
+  }, [selectedPromo, cartSubTotal, cart]);
+
+  const cartTotal = Math.max(0, cartSubTotal - discountAmount);
 
   // === CHECKOUT FLOW ===
   const startCheckout = () => { setIsCartOpen(false); setCurrentScreen('checkout_method'); };
@@ -199,8 +244,8 @@ export default function CustomerApp() {
   const submitDeliveryOrder = (e) => {
     e.preventDefault();
     if (!deliveryAddress) return showAlert('Ingresa tu dirección');
-    const newOrder = { id: Date.now().toString(), type: 'delivery', locationId: selectedLocation.id, items: cart, total: cartTotal, status: 'pending_approval', customerId: loggedCustomer.id, customerName: loggedCustomer.name, customerPhone: loggedCustomer.phone, address: deliveryAddress, timestamp: new Date().toISOString() };
-    setOrders(prev => [...(prev || []), newOrder]); setCart([]); setCurrentScreen('checkout_success');
+    const newOrder = { id: Date.now().toString(), type: 'delivery', locationId: selectedLocation.id, items: cart, subTotal: cartSubTotal, discount: discountAmount, appliedPromo: selectedPromo ? selectedPromo.id : null, total: cartTotal, status: 'pending_approval', customerId: loggedCustomer.id, customerName: loggedCustomer.name, customerPhone: loggedCustomer.phone, address: deliveryAddress, timestamp: new Date().toISOString() };
+    setOrders(prev => [...(prev || []), newOrder]); setCart([]); setSelectedPromo(null); setCurrentScreen('checkout_success');
   };
   const submitPaidOrder = (e) => {
     if (e) e.preventDefault();
@@ -211,9 +256,9 @@ export default function CustomerApp() {
     const isPaid = paymentMethod === 'yape' || paymentMethod === 'izipay';
     const pointsGained = Math.floor(cartTotal * 0.5);
     updateCustomerPoints(loggedCustomer.id, pointsGained, cartTotal);
-    const newOrder = { id: Date.now().toString(), type: 'recojo', locationId: selectedLocation.id, items: cart, total: cartTotal, status: 'pending', customerId: loggedCustomer.id, customerName: loggedCustomer.name, customerPhone: loggedCustomer.phone, paymentData, receiptEmitted: isPaid, timestamp: Date.now() };
+    const newOrder = { id: Date.now().toString(), type: 'recojo', locationId: selectedLocation.id, items: cart, subTotal: cartSubTotal, discount: discountAmount, appliedPromo: selectedPromo ? selectedPromo.id : null, total: cartTotal, status: 'pending', customerId: loggedCustomer.id, customerName: loggedCustomer.name, customerPhone: loggedCustomer.phone, paymentData, receiptEmitted: isPaid, timestamp: Date.now() };
     if (isPaid) registerOnlineSale(newOrder);
-    setOrders(prev => [...(prev || []), newOrder]); setCart([]); setCurrentScreen('checkout_success');
+    setOrders(prev => [...(prev || []), newOrder]); setCart([]); setSelectedPromo(null); setCurrentScreen('checkout_success');
   };
   const handlePayApprovedDelivery = (orderId, method) => {
     if ((method === 'yape' || method === 'izipay') && receiptType === 'factura') {
@@ -373,6 +418,32 @@ export default function CustomerApp() {
               </div>
             ))}
           </div>
+
+          {/* Tus Promociones */}
+          {applicablePromotions.length > 0 && (
+            <div className="animate-slide-up" style={{ marginBottom: '1.5rem', animationDelay: '0.15s' }}>
+              <h3 style={{ margin: '0 0 0.8rem', fontSize: '1.1rem', color: 'var(--text-primary)', fontFamily: 'Outfit, sans-serif' }}>
+                <Tag size={18} style={{ display: 'inline', verticalAlign: 'text-bottom', marginRight: '0.4rem', color: 'var(--primary-color)' }} />
+                Tus Promociones Exclusivas
+              </h3>
+              <div style={{ display: 'flex', gap: '0.8rem', overflowX: 'auto', paddingBottom: '0.5rem', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }} className="hide-scroll">
+                {applicablePromotions.map(promo => (
+                  <div key={promo.id} style={{ ...glassCard({ padding: '1.2rem', minWidth: '220px', flexShrink: 0, position: 'relative', overflow: 'hidden', borderLeft: '3px solid var(--primary-color)' }) }}>
+                    <div style={{ position: 'absolute', top: 0, right: 0, padding: '0.3rem 0.6rem', background: 'var(--primary-color)', color: 'white', fontSize: '0.7rem', fontWeight: 800, borderBottomLeftRadius: '10px' }}>
+                      {promo.discountType === 'percentage' ? `-${promo.discountValue}%` :
+                       promo.discountType === 'fixed' ? `-S/${promo.discountValue}` :
+                       promo.discountType === '2x1' ? '2x1' : 'Envío Gratis'}
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
+                      <BellRing size={16} color="var(--primary-color)" />
+                      <h4 style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-primary)', fontWeight: 700 }}>{promo.title}</h4>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.78rem', color: 'var(--text-muted)' }}>{promo.message}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="animate-slide-up" style={{ display: 'grid', gap: '0.85rem', marginBottom: '1.5rem', animationDelay: '0.2s' }}>
@@ -659,15 +730,46 @@ export default function CustomerApp() {
                 </div>
 
                 <div style={{ paddingTop: '1rem', borderTop: '1px solid var(--border-color)', padding: isMobile ? '1rem 1.5rem 2rem' : '1rem 0 0' }}>
+                  {/* Selector de Promociones */}
+                  {cart.length > 0 && applicablePromotions.length > 0 && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.4rem', fontWeight: 600 }}>¿Tienes una promoción?</label>
+                      <CustomSelect 
+                        className="w-full"
+                        style={{ padding: '0.8rem', borderRadius: '0.75rem', background: 'rgba(255,107,43,0.05)', borderColor: selectedPromo ? 'var(--primary-color)' : 'rgba(255,107,43,0.2)', color: 'var(--text-primary)', fontWeight: 600, outline: 'none' }}
+                        value={selectedPromo ? selectedPromo.id : ''}
+                        onChange={val => setSelectedPromo(applicablePromotions.find(p => p.id === val) || null)}
+                        options={[
+                          { value: '', label: '🎁 Selecciona una promoción (Opcional)' },
+                          ...applicablePromotions.map(p => ({
+                            value: p.id,
+                            label: `${p.title} (${p.discountType === 'percentage' ? `-${p.discountValue}%` : p.discountType === 'fixed' ? `-S/${p.discountValue}` : p.discountType === '2x1' ? '2x1' : 'Delivery Gratis'})`
+                          }))
+                        ]}
+                      />
+                    </div>
+                  )}
+
                   {cartTotal > 0 && (
                     <div style={{ background: 'rgba(16,217,144,0.08)', border: '1px dashed rgba(16,217,144,0.25)', padding: '0.65rem 0.8rem', borderRadius: '0.75rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                       <Star size={14} color="var(--success-color)" fill="var(--success-color)" />
                       <span style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>Ganarás <strong style={{ color: 'var(--success-color)' }}>+{pointsToEarn} pts</strong></span>
                     </div>
                   )}
+
+                  {discountAmount > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.95rem', fontWeight: 600, color: 'var(--success-color)' }}>
+                      <span>Descuento aplicado</span>
+                      <span>- S/ {discountAmount.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem', fontSize: '1.3rem', fontWeight: 800 }}>
                     <span style={{ color: 'var(--text-primary)' }}>Total</span>
-                    <span style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--primary-color)' }}>S/ {cartTotal.toFixed(2)}</span>
+                    <div style={{ textAlign: 'right' }}>
+                      {discountAmount > 0 && <span style={{ fontSize: '0.8rem', textDecoration: 'line-through', color: 'var(--text-muted)', marginRight: '0.5rem', fontWeight: 500 }}>S/ {cartSubTotal.toFixed(2)}</span>}
+                      <span style={{ fontFamily: 'Outfit, sans-serif', color: 'var(--primary-color)' }}>S/ {cartTotal.toFixed(2)}</span>
+                    </div>
                   </div>
                   <button onClick={startCheckout} disabled={cart.length === 0}
                     style={{ width: '100%', padding: '1rem', borderRadius: '0.85rem', border: 'none', fontSize: '1rem', fontWeight: 700, cursor: cart.length === 0 ? 'not-allowed' : 'pointer', color: 'white', background: cart.length === 0 ? 'var(--surface-hover)' : 'linear-gradient(135deg, #ff6b2b, #f59e0b)', opacity: cart.length === 0 ? 0.4 : 1, boxShadow: cart.length > 0 ? '0 8px 24px rgba(255,107,43,0.3)' : 'none', transition: 'all 0.3s ease' }}>

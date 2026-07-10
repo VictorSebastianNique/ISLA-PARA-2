@@ -260,7 +260,7 @@
           },
           "quantity": 2,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782015330037
         },
         {
@@ -276,7 +276,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782015336604
         },
         {
@@ -292,7 +292,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782015337989
         },
         {
@@ -308,7 +308,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782015346262
         },
         {
@@ -324,7 +324,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782015415429
         },
         {
@@ -340,7 +340,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782015751062
         },
         {
@@ -356,12 +356,12 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782022886852
         }
       ],
       "station": "bar",
-      "status": "pending",
+      "status": "ready",
       "timestamp": 1782015425540
     },
     {
@@ -505,7 +505,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782981159433
         },
         {
@@ -521,7 +521,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1782981160760
         },
         {
@@ -537,7 +537,7 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1783152972954
         },
         {
@@ -552,12 +552,12 @@
           },
           "quantity": 1,
           "details": "",
-          "status": "new",
+          "status": "ready",
           "timestamp": 1783152998411
         }
       ],
       "station": "bar",
-      "status": "pending",
+      "status": "ready",
       "timestamp": 1782981165808
     }
   ],
@@ -1541,10 +1541,39 @@
       "facturaSeries": "F001",
       "facturaNumber": 0,
       "active": true,
-      "id": "e474ab4a-6dbd-4172-9a33-d64923ad745a"
+      "id": "e474ab4a-6dbd-4172-9a33-d64923ad745a",
+      "canEmitFactura": false
+    },
+    {
+      "name": "DIANA JULISSA SEBASTIAN ÑIQUE",
+      "ruc": "10750996289",
+      "address": "Lima- Pueblo Libre",
+      "boletaSeries": "B001",
+      "boletaNumber": 0,
+      "facturaSeries": "F001",
+      "facturaNumber": 0,
+      "canEmitBoleta": true,
+      "canEmitFactura": false,
+      "active": true,
+      "id": "0c582508-2c66-430c-a9c8-f594f1841303"
+    },
+    {
+      "name": "FRESIA FLC E.I.R.L.",
+      "ruc": "20609073290",
+      "address": "",
+      "boletaSeries": "B001",
+      "boletaNumber": 0,
+      "facturaSeries": "F001",
+      "facturaNumber": 0,
+      "canEmitBoleta": true,
+      "canEmitFactura": true,
+      "active": true,
+      "id": "f735d837-f3bf-4f41-800d-ca9da1369a53"
     }
   ],
-  "menuStatus": {},
+  "menuStatus": {
+    "1782006285240": true
+  },
   "kardexItems": [
     {
       "id": "k_cabrito_normal",
