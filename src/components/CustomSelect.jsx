@@ -11,6 +11,8 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
   // Handle click outside to close
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Don't close if clicking inside the portal
+      if (event.target.closest('.custom-select-portal')) return;
       if (selectRef.current && !selectRef.current.contains(event.target)) {
         setIsOpen(false);
       }
@@ -42,7 +44,8 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 100000 }} onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}></div>
           <div 
-            className="animate-fade-in premium-glass-modal" 
+            className="animate-fade-in premium-glass-modal custom-select-portal" 
+
             style={{ 
               position: 'fixed', 
               top: selectRef.current ? selectRef.current.getBoundingClientRect().bottom + 8 : 0, 
