@@ -56,7 +56,7 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
               zIndex: 100001, 
               overflowY: 'auto',
               maxHeight: '300px',
-              backgroundColor: 'var(--surface-color)',
+              backgroundColor: 'var(--bg-color)',
               border: '1px solid var(--border-color)',
               boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
             }}
