@@ -438,7 +438,7 @@ export default function Caja() {
     if (companies && companies.length > 0 && !selectedCompanyId) {
       setSelectedCompanyId(companies[0].id);
     }
-  }, [companies]);
+  }, [companies, selectedCompanyId]);
 
   const handleLogout = () => { 
     if (currentUser.role === 'admin' || currentUser.role === 'superadmin') { 
