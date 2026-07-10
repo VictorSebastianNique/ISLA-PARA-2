@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const path = require('path');
 const { initMongo, seedMongo, appendAuditLog, getAuditLogs } = require('./db.cjs');
 const storeRoutes = require('./routes/store.cjs');
@@ -10,6 +11,10 @@ const DIST_DIR = path.resolve(__dirname, '../dist');
 const app = express();
 
 // Middlewares globales
+app.use(helmet({
+  contentSecurityPolicy: false, // Desactivado por defecto para evitar romper scripts integrados de React/Vite
+  crossOriginEmbedderPolicy: false // Permite cargar imágenes/recursos externos
+}));
 app.use(cors());
 app.use(express.json({ limit: '10mb', strict: false }));
 
