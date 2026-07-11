@@ -1,6 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const { getGlobalData } = require('../db.cjs');
+const { getGlobalData, getLocalData } = require('../db.cjs');
 const { JWT_SECRET } = require('../middleware/auth.cjs');
 
 const router = express.Router();
@@ -14,9 +14,19 @@ router.post('/login', async (req, res, next) => {
     }
 
     const globalData = await getGlobalData();
-    const users = globalData.users || [];
+    const globalUsers = globalData.users || [];
     
-    const user = users.find(u => u.username === username && u.password === password);
+    let localUsers = [];
+    try {
+      const localData = await getLocalData(locId);
+      localUsers = localData.users || [];
+    } catch (err) {
+      console.error('Error fetching local users for login:', err);
+    }
+    
+    const allUsers = [...globalUsers, ...localUsers];
+    
+    const user = allUsers.find(u => u.username === username && u.password === password);
     
     if (!user) {
       return res.status(401).json({ success: false, error: 'Usuario o contraseña incorrectos' });

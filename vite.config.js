@@ -92,7 +92,14 @@ const apiPlugin = () => ({
             const globalPath = path.resolve(process.cwd(), 'db_global.json');
             let globalDb = {};
             if (fs.existsSync(globalPath)) globalDb = JSON.parse(fs.readFileSync(globalPath, 'utf-8'));
-            const users = globalDb.users || [];
+            const globalUsers = globalDb.users || [];
+            
+            const localPath = path.resolve(process.cwd(), `db_local_${locId}.json`);
+            let localDb = {};
+            if (fs.existsSync(localPath)) localDb = JSON.parse(fs.readFileSync(localPath, 'utf-8'));
+            const localUsers = localDb.users || [];
+            
+            const users = [...globalUsers, ...localUsers];
             const user = users.find(u => u.username === username && u.password === password);
             
             res.setHeader('Content-Type', 'application/json');
