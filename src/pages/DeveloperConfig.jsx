@@ -5,6 +5,20 @@ import { useStore } from '../context/StoreContext';
 import { Lock, Settings, Database, Trash2, Power, Server, Shield, Users, MapPin, Cloud, HardDrive, RefreshCw, FileText, AlertTriangle, Eye, EyeOff, Printer, LayoutDashboard } from 'lucide-react';
 import CustomSelect from '../components/CustomSelect';
 
+const adminModuleLabels = {
+  metrics: 'Métricas BI',
+  caja: 'Caja y Transacciones',
+  users: 'Usuarios y Accesos',
+  crm: 'CRM (Clientes)',
+  categories: 'Categorías (Menú)',
+  subcategories: 'Subcategorías (Menú)',
+  menu: 'Platos y Productos',
+  kardex_config: 'Inventario (Kardex)',
+  zones: 'Zonas y Mesas',
+  empresas: 'Facturación / Empresas',
+  auditoria: 'Auditoría / Logs',
+  locales: 'Locales / Sedes'
+};
 export default function DeveloperConfig() {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
