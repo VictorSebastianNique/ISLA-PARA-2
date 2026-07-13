@@ -1028,7 +1028,7 @@ export default function Mozo() {
       )}
       {/* Transfer Table Modal */}
       {showTransferModal && (
-        <div className="animate-fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => { if (e.target === e.currentTarget) { setShowTransferModal(false); setTransferError(''); setTransferTargetKey(''); setTransferAuthPassword(''); }}}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => { if (e.target === e.currentTarget) { setShowTransferModal(false); setTransferError(''); setTransferTargetKey(''); setTransferAuthPassword(''); }}}>
           <div className="card w-full" style={{ maxWidth: '400px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2"><ArrowRightLeft size={20}/> Traspasar Mesa</h2>
@@ -1041,21 +1041,19 @@ export default function Mozo() {
             <form onSubmit={handleTransferTableAuth} className="flex flex-col gap-4">
               <div>
                 <label className="subtitle" style={{ fontSize: '0.875rem' }}>Mesa Destino</label>
-                <select 
-                  className="input mt-1 w-full" 
+                <CustomSelect 
+                  className="mt-1 w-full" 
                   value={transferTargetKey} 
-                  onChange={e => setTransferTargetKey(e.target.value)} 
-                  required
-                >
-                  <option value="">-- Seleccionar Mesa --</option>
-                  {zones?.flatMap(z => 
-                    (z.tables || [])
-                      .filter(t => !activeTables[`${z.id}-${t}`] || activeTables[`${z.id}-${t}`].length === 0)
-                      .map(t => (
-                        <option key={`${z.id}-${t}`} value={`${z.id}-${t}`}>{z.name} - {t}</option>
-                      ))
-                  )}
-                </select>
+                  onChange={val => setTransferTargetKey(val)}
+                  options={[
+                    { value: '', label: '-- Seleccionar Mesa --' },
+                    ...(zones?.flatMap(z => 
+                      (z.tables || [])
+                        .filter(t => !activeTables[`${z.id}-${t}`] || activeTables[`${z.id}-${t}`].length === 0)
+                        .map(t => ({ value: `${z.id}-${t}`, label: `${z.name} - ${t}` }))
+                    ) || [])
+                  ]}
+                />
               </div>
 
               {currentUser.role === 'mozo' && (
