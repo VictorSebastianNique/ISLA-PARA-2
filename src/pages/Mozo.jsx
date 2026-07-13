@@ -132,13 +132,15 @@ export default function Mozo() {
   const [transferError, setTransferError] = useState('');
 
   useEscapeKey(() => {
-    if (showPrintOptionModal) setShowPrintOptionModal(false);
-    if (isNotesModalOpen) setIsNotesModalOpen(false);
-    if (confirmReservationModal) setConfirmReservationModal(null);
-    if (showSplitBillModal) setShowSplitBillModal(false);
-    if (showHeadcountModal) setShowHeadcountModal(false);
-    if (showTransferModal) setShowTransferModal(false);
-    if (selectedTable) setSelectedTable(null);
+    if (showPrintOptionModal) { setShowPrintOptionModal(false); return; }
+    if (isNotesModalOpen) { setIsNotesModalOpen(false); return; }
+    if (confirmReservationModal) { setConfirmReservationModal(null); return; }
+    if (showSplitBillModal) { setShowSplitBillModal(false); return; }
+    if (showHeadcountModal) { setShowHeadcountModal(false); return; }
+    if (showTransferModal) { setShowTransferModal(false); return; }
+    if (pendingTableAuth) { setPendingTableAuth(null); return; }
+    if (selectedTable) { setSelectedTable(null); return; }
+    if (selectedZone) { setSelectedZone(null); return; }
   });
 
   const [currentTime, setCurrentTime] = useState(Date.now());
