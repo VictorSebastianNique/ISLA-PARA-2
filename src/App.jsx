@@ -10,7 +10,6 @@ import Kardex from './pages/Kardex';
 import DeveloperConfig from './pages/DeveloperConfig';
 import CustomerApp from './pages/CustomerApp';
 import Anfitriona from './pages/Anfitriona';
-import LandingPage from './pages/LandingPage';
 import { useStore } from './context/StoreContext';
 import { AlertProvider } from './context/AlertContext';
 
@@ -161,8 +160,7 @@ function App() {
     <AlertProvider>
       <BrowserRouter>
       <Routes>
-        <Route path="/"                element={<LandingPage />} />
-        <Route path="/login"           element={<SmartRoot />} />
+        <Route path="/"                element={<SmartRoot />} />
         <Route path="/app"             element={<CustomerApp />} />
         <Route path="/login/:sedeSlug" element={<Login />} />
         <Route path="/super-admin"     element={isIncognito ? <RestrictedRoot /> : <Login isSuperAdminRoute={true} />} />
