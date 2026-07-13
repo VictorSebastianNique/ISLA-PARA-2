@@ -44,8 +44,7 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
         <>
           <div style={{ position: 'fixed', inset: 0, zIndex: 100000 }} onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}></div>
           <div 
-            className="animate-fade-in premium-glass-modal custom-select-portal" 
-
+            className="animate-fade-in custom-select-portal" 
             style={{ 
               position: 'fixed', 
               top: selectRef.current ? selectRef.current.getBoundingClientRect().bottom + 8 : 0, 
@@ -55,7 +54,12 @@ const CustomSelect = ({ value, onChange, options, className = '', style = {}, di
               borderRadius: '0.75rem', 
               zIndex: 100001, 
               overflowY: 'auto',
-              maxHeight: '300px'
+              maxHeight: '300px',
+              background: 'rgba(16, 24, 39, 0.6)',
+              backdropFilter: 'blur(28px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(28px) saturate(150%)',
+              border: '1px solid rgba(255, 255, 255, 0.15)',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1)'
             }}
           >
             {options.map(opt => (
