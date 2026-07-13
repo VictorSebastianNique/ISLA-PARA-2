@@ -1028,7 +1028,7 @@ export default function Mozo() {
       )}
       {/* Transfer Table Modal */}
       {showTransferModal && (
-        <div className="modal-overlay animate-fade-in" onClick={(e) => { if (e.target === e.currentTarget) { setShowTransferModal(false); setTransferError(''); setTransferTargetKey(''); setTransferAuthPassword(''); }}}>
+        <div className="animate-fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => { if (e.target === e.currentTarget) { setShowTransferModal(false); setTransferError(''); setTransferTargetKey(''); setTransferAuthPassword(''); }}}>
           <div className="card w-full" style={{ maxWidth: '400px' }}>
             <div className="flex justify-between items-center mb-4">
               <h2 className="title flex items-center gap-2"><ArrowRightLeft size={20}/> Traspasar Mesa</h2>
