@@ -594,6 +594,50 @@ if (barCart.length > 0) {
     });
   };
 
+  const transferTable = (sourceKey, targetKey, adminUser) => {
+    if (activeTables[targetKey] && activeTables[targetKey].length > 0) {
+      return { success: false, error: 'La mesa destino ya está ocupada.' };
+    }
+
+    setActiveTables(prev => {
+      const next = { ...prev };
+      if (next[sourceKey]) {
+        next[targetKey] = next[sourceKey];
+        delete next[sourceKey];
+      }
+      return next;
+    });
+
+    setTableHeadcounts(prev => {
+      const next = { ...prev };
+      if (next[sourceKey]) {
+        next[targetKey] = next[sourceKey];
+        delete next[sourceKey];
+      }
+      return next;
+    });
+
+    setTableFamilies(prev => {
+      const next = { ...prev };
+      if (next[sourceKey]) {
+        next[targetKey] = next[sourceKey];
+        delete next[sourceKey];
+      }
+      return next;
+    });
+
+    setOrders(prev => prev.map(o => {
+      if (o.table === sourceKey && (o.status === 'pending' || o.status === 'preparing' || o.status === 'ready')) {
+        return { ...o, table: targetKey };
+      }
+      return o;
+    }));
+
+    logAudit('TABLE_TRANSFER', `Mesa traspasada de ${sourceKey} a ${targetKey}`, { sourceKey, targetKey }, adminUser?.id);
+
+    return { success: true };
+  };
+
   const voidSaleAndReopenTable = async (saleId, reason, adminUser, targetTableKey = null) => {
     const saleToVoid = (businessDay.sales || []).find(s => s.id === saleId);
     if (!saleToVoid) return { success: false, error: 'Venta no encontrada.' };
@@ -927,7 +971,7 @@ if (barCart.length > 0) {
       isBarActive, setIsBarActive,
       businessDay, setBusinessDay, pastDays, setPastDays, openDay, closeDay, openCaja, closeCaja,
       addIncome, addExpense,
-      activeTables, setActiveTables, updateTableCart, splitTableItem, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable, issueCreditNote,
+      activeTables, setActiveTables, updateTableCart, splitTableItem, sendTableOrders, voidTableItem, payTable, voidSaleAndReopenTable, issueCreditNote, transferTable,
       tableHeadcounts, setTableHeadcounts,
       companies, addCompany: addItem(setCompanies), updateCompany: updateItem(setCompanies), deleteCompany: deleteItem(setCompanies),
       developerSettings, setDeveloperSettings,

@@ -2,7 +2,7 @@ import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
-import { ShoppingCart, Plus, Minus, Check, ChevronRight, X, Lock, User as UserIcon, Clock, UtensilsCrossed, Search, Printer, SplitSquareHorizontal } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Check, ChevronRight, X, Lock, User as UserIcon, Clock, UtensilsCrossed, Search, Printer, SplitSquareHorizontal, ArrowRightLeft } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import PageHeader from '../components/PageHeader';
 import SplitBillModal from '../components/SplitBillModal';
@@ -14,7 +14,7 @@ import CustomSelect from '../components/CustomSelect';
 export default function Mozo() {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
-  const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts, locations, tableFamilies, setTableFamily } = useStore();
+  const { menu, categories, subcategories, zones, currentUser, logout, businessDay, activeTables, updateTableCart, sendTableOrders, voidTableItem, payTable, users, menuStatus, developerSettings, tableHeadcounts, setTableHeadcounts, locations, tableFamilies, setTableFamily, transferTable } = useStore();
   
   const [showItemNotes, setShowItemNotes] = useState(false);
   const [activeItemForNotes, setActiveItemForNotes] = useState(null);
@@ -124,12 +124,20 @@ export default function Mozo() {
   // Admin Auth Modal State
   const [voidItemTarget, setVoidItemTarget] = useState(null);
 
+  // Transfer Table State
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [transferTargetKey, setTransferTargetKey] = useState('');
+  const [transferAuthUser, setTransferAuthUser] = useState('');
+  const [transferAuthPassword, setTransferAuthPassword] = useState('');
+  const [transferError, setTransferError] = useState('');
+
   useEscapeKey(() => {
     if (showPrintOptionModal) setShowPrintOptionModal(false);
     if (isNotesModalOpen) setIsNotesModalOpen(false);
     if (confirmReservationModal) setConfirmReservationModal(null);
     if (showSplitBillModal) setShowSplitBillModal(false);
     if (showHeadcountModal) setShowHeadcountModal(false);
+    if (showTransferModal) setShowTransferModal(false);
     if (selectedTable) setSelectedTable(null);
   });
 
@@ -218,9 +226,17 @@ export default function Mozo() {
   const total = cart.reduce((sum, c) => sum + (c.item.price * (c.quantity || 1)), 0);
 
   // V5 Auth Flow
-  const openTableAuth = (tableName) => {
+  const openTableAuth = (tableName, tKey) => {
     setPendingTableAuth(tableName);
-    setAuthSelectedUser('');
+    
+    // Auto-seleccionar mozo si la mesa ya tiene pedidos
+    const existingCart = tKey ? activeTables[tKey] : null;
+    if (existingCart && existingCart.length > 0 && existingCart[0].mozoId) {
+       setAuthSelectedUser(existingCart[0].mozoId);
+    } else {
+       setAuthSelectedUser('');
+    }
+    
     setAuthPassword('');
     setAuthError('');
   };
@@ -229,7 +245,7 @@ export default function Mozo() {
     if (isReserved) {
       setConfirmReservationModal({ tKey, tableName, familyName });
     } else {
-      openTableAuth(tableName);
+      openTableAuth(tableName, tKey);
     }
   };
 
@@ -237,7 +253,7 @@ export default function Mozo() {
     if (confirmReservationModal) {
       // Mark as seated, retaining family name
       setTableFamily(confirmReservationModal.tKey, confirmReservationModal.familyName, 'seated');
-      openTableAuth(confirmReservationModal.tableName);
+      openTableAuth(confirmReservationModal.tableName, confirmReservationModal.tKey);
       setConfirmReservationModal(null);
     }
   };
@@ -290,7 +306,7 @@ export default function Mozo() {
     if (existing) {
       newCart = cart.map(c => c.id === existing.id ? { ...c, quantity: c.quantity + qty } : c);
     } else {
-      newCart = [...cart, { id: uuidv4(), item: pendingItem, quantity: qty, details: itemDetails.trim(), status: 'new', timestamp: Date.now() }];
+      newCart = [...cart, { id: uuidv4(), item: pendingItem, quantity: qty, details: itemDetails.trim(), status: 'new', timestamp: Date.now(), mozoId: sessionWaiter?.id }];
     }
     updateTableCart(tableKey, newCart);
     setPendingItem(null);
@@ -393,6 +409,43 @@ export default function Mozo() {
     setAdminPassword('');
     setVoidReason('');
     setVoidError('');
+  };
+
+  const executeTransfer = (adminUser = null) => {
+    if (!transferTargetKey) {
+      setTransferError('Seleccione una mesa destino');
+      return;
+    }
+    
+    const res = transferTable(tableKey, transferTargetKey, adminUser || currentUser);
+    if (!res.success) {
+      setTransferError(res.error);
+      return;
+    }
+
+    setShowTransferModal(false);
+    setSelectedTable(null);
+    setSessionWaiter(null);
+    setTransferTargetKey('');
+    setTransferAuthPassword('');
+    setTransferError('');
+    showAlert('Mesa traspasada exitosamente');
+  };
+
+  const handleTransferTableAuth = (e) => {
+    e.preventDefault();
+    if (currentUser.role !== 'mozo') {
+      executeTransfer();
+      return;
+    }
+
+    const adminUser = users.find(u => (u.role === 'admin' || u.role === 'superadmin' || u.role === 'cajera') && u.password === transferAuthPassword && u.active);
+    if (!adminUser) {
+      setTransferError('PIN incorrecto o usuario no autorizado');
+      return;
+    }
+
+    executeTransfer(adminUser);
   };
 
   return (
@@ -679,13 +732,22 @@ export default function Mozo() {
               <h2 className="title" style={{ fontSize: '1.25rem' }}>Cuenta {selectedTable ? selectedTable : ''}</h2>
             </div>
             {cart.length > 0 && (
-              <button 
-                className="btn btn-outline" 
-                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} 
-                onClick={() => setShowSplitBillModal(true)}
-              >
-                <SplitSquareHorizontal size={16} style={{ marginRight: '0.4rem' }}/> Cuentas
-              </button>
+              <div className="flex gap-2">
+                <button 
+                  className="btn btn-outline" 
+                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} 
+                  onClick={() => setShowTransferModal(true)}
+                >
+                  <ArrowRightLeft size={16} style={{ marginRight: '0.4rem' }}/> Traspasar
+                </button>
+                <button 
+                  className="btn btn-outline" 
+                  style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem' }} 
+                  onClick={() => setShowSplitBillModal(true)}
+                >
+                  <SplitSquareHorizontal size={16} style={{ marginRight: '0.4rem' }}/> Cuentas
+                </button>
+              </div>
             )}
           </div>
 
@@ -962,6 +1024,60 @@ export default function Mozo() {
           onPrintRemote={handlePrintRemote}
         />
       )}
+      {/* Transfer Table Modal */}
+      {showTransferModal && (
+        <div className="modal-overlay animate-fade-in" onClick={(e) => { if (e.target === e.currentTarget) { setShowTransferModal(false); setTransferError(''); setTransferTargetKey(''); setTransferAuthPassword(''); }}}>
+          <div className="card w-full" style={{ maxWidth: '400px' }}>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="title flex items-center gap-2"><ArrowRightLeft size={20}/> Traspasar Mesa</h2>
+              <button className="btn btn-outline" style={{ padding: '0.4rem' }} onClick={() => { setShowTransferModal(false); setTransferError(''); setTransferTargetKey(''); setTransferAuthPassword(''); }}><X size={16}/></button>
+            </div>
+            <p className="subtitle mb-4">Mueve el pedido de <strong>{selectedZone?.name} - {selectedTable}</strong> a otra mesa libre.</p>
+            
+            {transferError && <p style={{ color: 'var(--danger-color)', fontSize: '0.875rem', marginBottom: '1rem' }}>{transferError}</p>}
+            
+            <form onSubmit={handleTransferTableAuth} className="flex flex-col gap-4">
+              <div>
+                <label className="subtitle" style={{ fontSize: '0.875rem' }}>Mesa Destino</label>
+                <select 
+                  className="input mt-1 w-full" 
+                  value={transferTargetKey} 
+                  onChange={e => setTransferTargetKey(e.target.value)} 
+                  required
+                >
+                  <option value="">-- Seleccionar Mesa --</option>
+                  {zones?.flatMap(z => 
+                    (z.tables || [])
+                      .filter(t => !activeTables[`${z.id}-${t}`] || activeTables[`${z.id}-${t}`].length === 0)
+                      .map(t => (
+                        <option key={`${z.id}-${t}`} value={`${z.id}-${t}`}>{z.name} - {t}</option>
+                      ))
+                  )}
+                </select>
+              </div>
+
+              {currentUser.role === 'mozo' && (
+                <div>
+                  <label className="subtitle" style={{ fontSize: '0.875rem' }}>PIN de Autorización (Admin/Caja)</label>
+                  <input 
+                    type="password" 
+                    className="input mt-1 w-full" 
+                    value={transferAuthPassword} 
+                    onChange={e => setTransferAuthPassword(e.target.value)} 
+                    placeholder="****"
+                    required 
+                  />
+                </div>
+              )}
+              
+              <button type="submit" className="btn btn-primary justify-center" style={{ marginTop: '1rem' }}>
+                Confirmar Traspaso
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
