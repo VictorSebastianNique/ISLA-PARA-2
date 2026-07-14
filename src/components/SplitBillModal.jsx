@@ -12,9 +12,9 @@ export default function SplitBillModal({ isOpen, onClose, tableKey, tableName })
   const cart = activeTables[tableKey] || [];
 
   return createPortal(
-    <div style={{
+    <div className="modal-overlay animate-fade-in" style={{
       position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.7)',
+      backgroundColor: 'rgba(0,0,0,0.6)',
       backdropFilter: 'blur(8px)',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       zIndex: 999999, padding: '1rem'
@@ -95,11 +95,11 @@ function SplitBillManager({ cart, tableKey, tableName, onClose, splitTableItem }
   const selectedCount = Object.keys(selectedItems).length;
 
   return (
-    <div className="card" style={{ width: '100%', maxWidth: isMobile ? '100vw' : '900px', height: isMobile ? '100vh' : '85vh', borderRadius: isMobile ? 0 : 'var(--border-radius)', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--surface-solid)', padding: 0 }}>
-      <div style={{ padding: isMobile ? '1rem' : '1.5rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div className="modal-content animate-bounce-in" style={{ width: '100%', maxWidth: isMobile ? '100vw' : '900px', height: isMobile ? '100vh' : '85vh', borderRadius: isMobile ? 0 : '16px', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--surface-solid)', border: '1px solid var(--border-color)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', overflow: 'hidden', padding: 0 }}>
+      <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 600 }}>Cuentas Separadas - {tableName}</h2>
-        <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}>
-          <X size={24} />
+        <button className="btn btn-outline" onClick={onClose} style={{ padding: '0.4rem', color: 'var(--text-muted)' }}>
+          <X size={16} />
         </button>
       </div>
 
