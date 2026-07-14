@@ -86,6 +86,19 @@ export default function Anfitriona() {
     setSelectedTable(null);
   };
 
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  React.useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const getOccupiedTime = (cartArray) => {
+    if (!cartArray || cartArray.length === 0) return '';
+    const earliest = Math.min(...cartArray.map(item => item.timestamp));
+    const diff = Math.floor((currentTime - earliest) / 60000);
+    return `${diff}m`;
+  };
+
   const getTableStyle = (key) => {
     if (activeTables[key] && activeTables[key].length > 0) return {
       backgroundColor: 'color-mix(in srgb, var(--danger-color) 15%, transparent)',
@@ -117,7 +130,8 @@ export default function Anfitriona() {
     }
     const zoneName = zones?.find(z => z.id === zoneId)?.name || 'Zona Desconocida';
     const isOccupied = activeTables[key] && activeTables[key].length > 0;
-    return { key, zoneName, tableNum, ...data, isOccupied };
+    const occupiedTime = isOccupied ? getOccupiedTime(activeTables[key]) : '';
+    return { key, zoneName, tableNum, ...data, isOccupied, occupiedTime };
   }).sort((a, b) => b.timestamp - a.timestamp);
 
   return (
@@ -220,6 +234,11 @@ export default function Anfitriona() {
                         }}
                       >
                         <span style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '0.25rem' }}>{tableName}</span>
+                        {occupied && (
+                          <span style={{ position: 'absolute', top: '8px', right: '8px', fontSize: '0.7rem', fontWeight: 600, color: 'var(--danger-color)', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                            <Clock size={10} /> {getOccupiedTime(activeTables[key])}
+                          </span>
+                        )}
                         {family && (
                           <div style={{ position: 'absolute', bottom: '8px', left: 0, width: '100%', padding: '0 4px' }}>
                             <div 
@@ -272,7 +291,7 @@ export default function Anfitriona() {
                   <div className="flex" style={{ justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem' }}>
                     <span style={{ textTransform: 'capitalize', color: 'var(--text-secondary)' }}>{fam.zoneName}</span>
                     {fam.isOccupied ? (
-                      <span className="flex items-center" style={{ gap: '0.25rem', color: '#f87171' }}><CheckCircle size={12}/> Ocupada</span>
+                      <span className="flex items-center" style={{ gap: '0.25rem', color: '#f87171' }}><CheckCircle size={12}/> Ocupada {fam.occupiedTime && `(${fam.occupiedTime})`}</span>
                     ) : (
                       <span className="flex items-center" style={{ gap: '0.25rem', color: '#60a5fa' }}><Clock size={12}/> Reservada</span>
                     )}
