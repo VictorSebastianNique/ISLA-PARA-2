@@ -1,5 +1,5 @@
 import { useAlert } from '../context/AlertContext';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
@@ -1422,7 +1422,8 @@ export default function Caja() {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── DISCOUNT MODAL ─────────────────────────────────────────── */}
@@ -1909,8 +1910,7 @@ export default function Caja() {
               </>
             )}
           </div>
-        </div>,
-        document.body
+        </div>
       )}
 
 
