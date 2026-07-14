@@ -1427,8 +1427,8 @@ export default function Caja() {
       )}
 
       {/* ── DISCOUNT MODAL ─────────────────────────────────────────── */}
-      {showDiscountModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+      {showDiscountModal && createPortal(
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <div style={{ width: '90vw', maxWidth: '350px', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', padding: '1.25rem', position: 'relative' }} className="animate-fade-in">
             <h2 className="title" style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Aplicar Descuento</h2>
             <button className="btn btn-outline" style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.35rem' }} onClick={() => setShowDiscountModal(false)}><X size={15} /></button>
@@ -1459,7 +1459,8 @@ export default function Caja() {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* ── FLOW MODAL (Ingresos/Egresos) ─────────────────────────────────────────── */}
