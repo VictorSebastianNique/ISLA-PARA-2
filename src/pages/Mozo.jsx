@@ -1026,6 +1026,23 @@ export default function Mozo() {
           onPrintRemote={handlePrintRemote}
         />
       )}
+      {/* Confirm Reservation Modal */}
+      {confirmReservationModal && (
+        <div className="animate-fade-in" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => { if (e.target === e.currentTarget) setConfirmReservationModal(null); }}>
+          <div className="card w-full" style={{ maxWidth: '400px', textAlign: 'center' }}>
+            <h2 className="title mb-4" style={{ fontSize: '1.5rem', color: 'var(--primary-color)' }}>Mesa Reservada</h2>
+            <p className="subtitle mb-6" style={{ fontSize: '1.1rem' }}>
+              Esta mesa fue reservada para:<br/>
+              <strong style={{ fontSize: '1.4rem', color: 'var(--text-primary)', display: 'block', margin: '1rem 0' }}>{confirmReservationModal.familyName}</strong>
+            </p>
+            <div className="flex gap-4 w-full">
+              <button className="btn btn-outline flex-1" onClick={() => setConfirmReservationModal(null)}>Cancelar</button>
+              <button className="btn btn-primary flex-1" onClick={confirmReservationAndOpenTable}>Atender Mesa</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Transfer Table Modal */}
       {showTransferModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }} onClick={(e) => { if (e.target === e.currentTarget) { setShowTransferModal(false); setTransferError(''); setTransferTargetKey(''); setTransferAuthPassword(''); }}}>

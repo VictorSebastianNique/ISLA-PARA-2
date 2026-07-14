@@ -106,7 +106,16 @@ export default function Anfitriona() {
 
   const assignedFamilies = Object.keys(tableFamilies).map(key => {
     const data = tableFamilies[key];
-    const [zoneName, tableNum] = key.split('-');
+    let zoneId = '';
+    let tableNum = key;
+    if (zones) {
+      const z = zones.find(zone => key.startsWith(`${zone.id}-`));
+      if (z) {
+        zoneId = z.id;
+        tableNum = key.substring(z.id.length + 1);
+      }
+    }
+    const zoneName = zones?.find(z => z.id === zoneId)?.name || 'Zona Desconocida';
     const isOccupied = activeTables[key] && activeTables[key].length > 0;
     return { key, zoneName, tableNum, ...data, isOccupied };
   }).sort((a, b) => b.timestamp - a.timestamp);
