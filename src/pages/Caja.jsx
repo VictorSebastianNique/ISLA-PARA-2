@@ -478,12 +478,19 @@ export default function Caja() {
   const [deliveryFee, setDeliveryFee] = useState('');
 
   useEscapeKey(() => {
-    if (showDiscountModal) setShowDiscountModal(false);
-    if (showSplitBillModal) setShowSplitBillModal(false);
-    if (showCloseCajaModal) setShowCloseCajaModal(false);
-    if (showFlowModal) setShowFlowModal(false);
-    if (showPrintOptionModal) setShowPrintOptionModal(false);
-    if (selectedTableKey) setSelectedTableKey(null);
+    if (showDiscountModal) {
+      setShowDiscountModal(false);
+    } else if (showSplitBillModal) {
+      setShowSplitBillModal(false);
+    } else if (showAddMenu) {
+      setShowAddMenu(false);
+    } else if (showCloseCajaModal) {
+      setShowCloseCajaModal(false);
+    } else if (showFlowModal) {
+      setShowFlowModal(false);
+    } else if (showPrintOptionModal) {
+      setShowPrintOptionModal(false);
+    }
   });
 
   const handleApproveOnlineOrder = (order) => {
@@ -668,12 +675,14 @@ export default function Caja() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && selectedTableKey) {
-        handleClose();
+        if (!showSplitBillModal && !showDiscountModal && !showAddMenu) {
+          handleClose();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedTableKey, handleClose]);
+  }, [selectedTableKey, handleClose, showSplitBillModal, showDiscountModal, showAddMenu]);
 
   const handleAddPayment = () => {
     const amt = parseFloat(currentAmountReceived);
