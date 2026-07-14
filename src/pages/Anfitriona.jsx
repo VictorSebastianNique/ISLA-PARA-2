@@ -193,13 +193,13 @@ export default function Anfitriona() {
           <div style={{ maxWidth: '1024px', margin: '0 auto', paddingBottom: '5rem' }}>
             <div className="flex flex-wrap items-center justify-center sm:justify-start" style={{ gap: '0.75rem', marginBottom: '1.5rem', padding: '0.75rem 1rem', backgroundColor: 'var(--surface-solid)', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
                <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--success-color)', boxShadow: '0 0 10px var(--success-color)' }}></div> Libre
+                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, backgroundColor: 'var(--success-color)', boxShadow: '0 0 8px var(--success-color)' }}></div> Libre
                </div>
                <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--info-color)', boxShadow: '0 0 10px var(--info-color)' }}></div> Reservada
+                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, backgroundColor: 'var(--info-color)', boxShadow: '0 0 8px var(--info-color)' }}></div> Reservada
                </div>
                <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--danger-color)', boxShadow: '0 0 10px var(--danger-color)' }}></div> Ocupada
+                 <div style={{ width: '12px', height: '12px', borderRadius: '50%', flexShrink: 0, backgroundColor: 'var(--danger-color)', boxShadow: '0 0 8px var(--danger-color)' }}></div> Ocupada
                </div>
             </div>
 
