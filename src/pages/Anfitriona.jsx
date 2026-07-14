@@ -94,9 +94,13 @@ export default function Anfitriona() {
 
   const getOccupiedTime = (cartArray) => {
     if (!cartArray || cartArray.length === 0) return '';
-    const earliest = Math.min(...cartArray.map(item => item.timestamp));
-    const diff = Math.floor((currentTime - earliest) / 60000);
-    return `${diff}m`;
+    const earliest = Math.min(...cartArray.map(item => item.timestamp || Date.now()));
+    const diff = Math.max(0, currentTime - earliest);
+    const totalSeconds = Math.floor(diff / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
   const getTableStyle = (key) => {
@@ -156,10 +160,11 @@ export default function Anfitriona() {
             <button 
               className="flex-1"
               style={{ 
-                padding: '0.6rem 0', fontSize: '0.85rem', fontWeight: 600, borderRadius: '9999px', transition: 'all 0.3s',
+                padding: '0.6rem 0.25rem', fontSize: 'clamp(0.7rem, 2.5vw, 0.85rem)', fontWeight: 600, borderRadius: '9999px', transition: 'all 0.3s',
                 backgroundColor: viewMode === 'mesas' ? 'var(--primary-color)' : 'transparent',
                 color: viewMode === 'mesas' ? '#fff' : 'var(--text-secondary)',
-                boxShadow: viewMode === 'mesas' ? '0 4px 12px rgba(255,107,0,0.3)' : 'none'
+                boxShadow: viewMode === 'mesas' ? '0 4px 12px rgba(255,107,0,0.3)' : 'none',
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
               }}
               onClick={() => setViewMode('mesas')}
             >
@@ -168,10 +173,11 @@ export default function Anfitriona() {
             <button 
               className="flex-1"
               style={{ 
-                padding: '0.6rem 0', fontSize: '0.85rem', fontWeight: 600, borderRadius: '9999px', transition: 'all 0.3s',
+                padding: '0.6rem 0.25rem', fontSize: 'clamp(0.7rem, 2.5vw, 0.85rem)', fontWeight: 600, borderRadius: '9999px', transition: 'all 0.3s',
                 backgroundColor: viewMode === 'asignadas' ? 'var(--primary-color)' : 'transparent',
                 color: viewMode === 'asignadas' ? '#fff' : 'var(--text-secondary)',
-                boxShadow: viewMode === 'asignadas' ? '0 4px 12px rgba(255,107,0,0.3)' : 'none'
+                boxShadow: viewMode === 'asignadas' ? '0 4px 12px rgba(255,107,0,0.3)' : 'none',
+                whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
               }}
               onClick={() => setViewMode('asignadas')}
             >
@@ -185,15 +191,15 @@ export default function Anfitriona() {
         {/* Main Map Area */}
         <div className="flex-1" style={{ padding: isMobile ? '1rem' : '1.5rem', overflowY: 'auto', display: (!isMobile || viewMode === 'mesas') ? 'block' : 'none' }}>
           <div style={{ maxWidth: '1024px', margin: '0 auto', paddingBottom: '5rem' }}>
-            <div className="flex flex-wrap items-center justify-center sm:justify-start" style={{ gap: '1.5rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', backgroundColor: 'var(--surface-solid)', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
-               <div className="flex items-center gap-2.5 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                 <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: 'var(--success-color)', boxShadow: '0 0 10px var(--success-color)' }}></div> Libre
+            <div className="flex flex-wrap items-center justify-center sm:justify-start" style={{ gap: '0.75rem', marginBottom: '1.5rem', padding: '0.75rem 1rem', backgroundColor: 'var(--surface-solid)', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 4px 15px rgba(0,0,0,0.05)' }}>
+               <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--success-color)', boxShadow: '0 0 10px var(--success-color)' }}></div> Libre
                </div>
-               <div className="flex items-center gap-2.5 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                 <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: 'var(--info-color)', boxShadow: '0 0 10px var(--info-color)' }}></div> Reservada
+               <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--info-color)', boxShadow: '0 0 10px var(--info-color)' }}></div> Reservada
                </div>
-               <div className="flex items-center gap-2.5 text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
-                 <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: 'var(--danger-color)', boxShadow: '0 0 10px var(--danger-color)' }}></div> Ocupada
+               <div className="flex items-center gap-2 text-xs sm:text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
+                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: 'var(--danger-color)', boxShadow: '0 0 10px var(--danger-color)' }}></div> Ocupada
                </div>
             </div>
 
@@ -251,9 +257,10 @@ export default function Anfitriona() {
                           <div style={{ position: 'absolute', bottom: '8px', left: 0, width: '100%', padding: '0 4px' }}>
                             <div 
                               style={{ 
-                                fontSize: '0.65rem', fontWeight: 'bold', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', padding: '0 4px', borderRadius: '9999px',
+                                fontSize: '0.65rem', fontWeight: 'bold', whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.2, padding: '2px 4px', borderRadius: '4px',
                                 backgroundColor: occupied ? 'color-mix(in srgb, var(--danger-color) 30%, transparent)' : 'color-mix(in srgb, var(--info-color) 30%, transparent)', 
-                                color: occupied ? 'var(--danger-color)' : 'var(--info-color)' 
+                                color: occupied ? 'var(--danger-color)' : 'var(--info-color)',
+                                display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
                               }}
                             >
                               {family.familyName}
