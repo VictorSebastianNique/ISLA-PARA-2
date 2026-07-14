@@ -1,5 +1,6 @@
 import { useAlert } from '../context/AlertContext';
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import CustomSelect from '../components/CustomSelect';
@@ -982,8 +983,8 @@ export default function Caja() {
       )}
 
       {/* ── BILLING MODAL ─────────────────────────────────────────── */}
-      {selectedTable && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+      {selectedTable && createPortal(
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <div style={{ width: '90vw', maxWidth: '580px', maxHeight: '95vh', overflowY: 'auto', backgroundColor: 'var(--surface-color)', borderRadius: 'var(--border-radius)', padding: '1.25rem', position: 'relative' }}
             className="animate-fade-in"
           >
@@ -1908,7 +1909,8 @@ export default function Caja() {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
 
