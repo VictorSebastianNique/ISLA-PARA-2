@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import CustomSelect from '../components/CustomSelect';
-import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Users, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer, FileDown, AlertTriangle } from 'lucide-react';
+import { CreditCard, DollarSign, Smartphone, X, LogOut, User, Users, Receipt, CheckCircle, FileText, Building2, ArrowDownCircle, ArrowUpCircle, Plus, Eye, EyeOff, Save, Edit2, Search, Loader2, Share2, Printer, FileDown, AlertTriangle, Map } from 'lucide-react';
 import UserManagement from '../components/UserManagement';
 import { v4 as uuidv4 } from 'uuid';
 import PrintReceipt from '../components/PrintReceipt';
@@ -792,6 +792,14 @@ export default function Caja() {
         actions={
           <>
             {businessDay?.cajaDetails?.isOpen && (
+              <>
+                <button 
+                  className="btn btn-outline" 
+                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: 'var(--primary-color)', borderColor: 'var(--primary-color)' }}
+                  onClick={() => navigate('/anfitriona')}
+                >
+                  <Map size={14} style={{ marginRight: '0.4rem' }} /> Reservas
+                </button>
               <button 
                 className="btn btn-outline" 
                 style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem', color: 'var(--danger-color)', borderColor: 'var(--danger-color)' }}
@@ -799,6 +807,7 @@ export default function Caja() {
               >
                 Cerrar Turno (Caja)
               </button>
+              </>
             )}
             <div style={{ display: 'flex', borderRadius: 'var(--border-radius-sm)', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
               <button

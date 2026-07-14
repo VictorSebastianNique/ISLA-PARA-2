@@ -44,7 +44,7 @@ export default function Anfitriona() {
       }
       return;
     }
-    if (currentUser.role !== 'anfitriona' && currentUser.role !== 'admin' && currentUser.role !== 'superadmin') {
+    if (currentUser.role !== 'anfitriona' && currentUser.role !== 'admin' && currentUser.role !== 'superadmin' && currentUser.role !== 'cajera') {
       navigate('/');
     }
   }, [currentUser, navigate, developerSettings]);
@@ -54,6 +54,8 @@ export default function Anfitriona() {
   const handleLogout = () => {
     if (currentUser.role === 'admin' || currentUser.role === 'superadmin') {
       navigate('/admin');
+    } else if (currentUser.role === 'cajera') {
+      navigate('/caja');
     } else {
       const role = currentUser?.role;
       const locId = localStorage.getItem('currentLocationId');
@@ -148,7 +150,9 @@ export default function Anfitriona() {
         actions={
           <button onClick={handleLogout} className="btn btn-outline text-xs px-3 py-1 flex items-center gap-2">
             <LogOut size={14} />
-            <span className="inline">{(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Volver al Admin' : 'Cerrar Sesión'}</span>
+            <span className="inline">
+              {(currentUser.role === 'admin' || currentUser.role === 'superadmin') ? 'Volver al Admin' : (currentUser.role === 'cajera' ? 'Volver a Caja' : 'Cerrar Sesión')}
+            </span>
           </button>
         }
       />
