@@ -68,12 +68,13 @@ export default function Anfitriona() {
     }
   };
 
-  const handleTableClick = (zoneName, tableNum) => {
-    const key = `${zoneName}-${tableNum}`;
+  const handleTableClick = (zoneId, tableNum) => {
+    const key = `${zoneId}-${tableNum}`;
     const familyData = tableFamilies[key];
     const isOccupied = activeTables[key] && activeTables[key].length > 0;
+    const zoneName = zones?.find(z => z.id === zoneId)?.name || 'Zona';
     
-    setSelectedTable({ key, zoneName, tableNum, familyData, isOccupied });
+    setSelectedTable({ key, zoneId, zoneName, tableNum, familyData, isOccupied });
     setFamilyNameInput(familyData ? familyData.familyName : '');
   };
 
@@ -137,7 +138,7 @@ export default function Anfitriona() {
     const zoneName = zones?.find(z => z.id === zoneId)?.name || 'Zona Desconocida';
     const isOccupied = activeTables[key] && activeTables[key].length > 0;
     const occupiedTime = isOccupied ? getOccupiedTime(activeTables[key]) : '';
-    return { key, zoneName, tableNum, ...data, isOccupied, occupiedTime };
+    return { key, zoneId, zoneName, tableNum, ...data, isOccupied, occupiedTime };
   }).sort((a, b) => b.timestamp - a.timestamp);
 
   return (
@@ -301,7 +302,7 @@ export default function Anfitriona() {
                     backgroundColor: fam.isOccupied ? 'color-mix(in srgb, var(--danger-color) 10%, transparent)' : 'color-mix(in srgb, var(--info-color) 10%, transparent)',
                     borderColor: fam.isOccupied ? 'color-mix(in srgb, var(--danger-color) 20%, transparent)' : 'color-mix(in srgb, var(--info-color) 20%, transparent)'
                   }}
-                  onClick={() => handleTableClick(fam.zoneName, fam.tableNum)}
+                  onClick={() => handleTableClick(fam.zoneId, fam.tableNum)}
                 >
                   <div className="flex" style={{ justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '0.875rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '0.5rem', color: 'var(--text-primary)' }}>{fam.familyName}</span>
@@ -324,9 +325,9 @@ export default function Anfitriona() {
 
       {/* Assignment Modal */}
       {selectedTable && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4" style={{ backgroundColor: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)' }}>
-          <div className="rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in fade-in zoom-in duration-200" style={{ backgroundColor: 'var(--surface-solid)', border: '1px solid var(--border-color)' }}>
-            <div className="p-4 flex justify-between items-center" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+          <div style={{ width: '100%', maxWidth: '400px', backgroundColor: 'var(--surface-solid)', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', overflow: 'hidden', animation: 'fadeIn 0.2s ease-out' }}>
+            <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Mesa {selectedTable.tableNum} <span className="text-sm font-normal capitalize" style={{ color: 'var(--text-secondary)' }}>({selectedTable.zoneName})</span></h3>
               <button onClick={() => setSelectedTable(null)} style={{ color: 'var(--text-muted)' }} className="hover:text-white"><X size={20}/></button>
             </div>
