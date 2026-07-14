@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { Users, LogOut, CheckCircle, Clock, Trash2, Home, X } from 'lucide-react';
@@ -324,12 +325,14 @@ export default function Anfitriona() {
       </div>
 
       {/* Assignment Modal */}
-      {selectedTable && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '1rem', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-          <div style={{ width: '100%', maxWidth: '400px', backgroundColor: 'var(--surface-solid)', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', overflow: 'hidden', animation: 'fadeIn 0.2s ease-out' }}>
+      {selectedTable && createPortal(
+        <div className="modal-overlay animate-fade-in" style={{ position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999, padding: '1rem', backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+          <div className="modal-content animate-bounce-in" style={{ width: '100%', maxWidth: '400px', backgroundColor: 'var(--surface-solid)', borderRadius: '16px', border: '1px solid var(--border-color)', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', overflow: 'hidden' }}>
             <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)' }}>Mesa {selectedTable.tableNum} <span className="text-sm font-normal capitalize" style={{ color: 'var(--text-secondary)' }}>({selectedTable.zoneName})</span></h3>
-              <button onClick={() => setSelectedTable(null)} style={{ color: 'var(--text-muted)' }} className="hover:text-white"><X size={20}/></button>
+              <h3 className="font-bold text-lg" style={{ color: 'var(--text-primary)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                Mesa {selectedTable.tableNum} <span className="text-sm font-normal uppercase" style={{ color: 'var(--text-secondary)' }}>({selectedTable.zoneName})</span>
+              </h3>
+              <button onClick={() => setSelectedTable(null)} className="btn btn-outline" style={{ padding: '0.4rem', color: 'var(--text-muted)' }}><X size={16}/></button>
             </div>
             <div className="p-6">
               <div className="mb-6">
@@ -373,7 +376,8 @@ export default function Anfitriona() {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
