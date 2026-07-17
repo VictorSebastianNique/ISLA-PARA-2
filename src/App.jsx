@@ -10,6 +10,7 @@ import Kardex from './pages/Kardex';
 import DeveloperConfig from './pages/DeveloperConfig';
 import CustomerApp from './pages/CustomerApp';
 import Anfitriona from './pages/Anfitriona';
+import LandingPage from './pages/LandingPage';
 import { useStore } from './context/StoreContext';
 import { AlertProvider } from './context/AlertContext';
 
@@ -136,7 +137,7 @@ const SmartRoot = () => {
   }, [currentUser, locations, navigate]);
 
   // Fallback si no hay sede guardada (ej. primera vez que abren la PWA desde la raíz)
-  return <RestrictedRoot />;
+  return <LandingPage />;
 };
 
 /* ── App Root ─────────────────────────────────────────────── */
