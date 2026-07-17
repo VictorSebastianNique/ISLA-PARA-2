@@ -151,7 +151,7 @@ export default defineConfig({
       },
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       manifest: {
-        name: 'POS Solution',
+        name: 'ADREDI Solutions',
         short_name: 'POS App',
         description: 'Sistema de Gestión y Punto de Venta',
         theme_color: '#0f172a',
