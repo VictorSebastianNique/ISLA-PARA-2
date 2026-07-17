@@ -105,18 +105,18 @@ export const StoreProvider = ({ children }) => {
           if (resLocal.ok) {
              const dataLocal = await resLocal.json();
              localUsers = dataLocal.users || [];
-             setZones(dataLocal.zones || []);
-             setOrders(dataLocal.orders || []);
+             setZones(Array.isArray(dataLocal.zones) ? dataLocal.zones : []);
+             setOrders(Array.isArray(dataLocal.orders) ? dataLocal.orders : []);
              setIsBarActive(dataLocal.isBarActive !== undefined ? dataLocal.isBarActive : true);
              setBusinessDay(dataLocal.businessDay || { isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [], cajaDetails: { isOpen: false, fondoInicial: 0, efectivoDeclarado: 0, diferencia: 0, justificacion: '', status: 'closed' } });
-             setPastDays(dataLocal.pastDays || []);
+             setPastDays(Array.isArray(dataLocal.pastDays) ? dataLocal.pastDays : []);
              setActiveTables(dataLocal.activeTables || {});
              setTableHeadcounts(dataLocal.tableHeadcounts || {});
-             setCompanies(dataLocal.companies || []);
+             setCompanies(Array.isArray(dataLocal.companies) ? dataLocal.companies : []);
              setMenuStatus(dataLocal.menuStatus || {});
              setTableFamilies(dataLocal.tableFamilies || {});
           } else {
-             setZones([]); setOrders([]); setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] }); setPastDays([]); setActiveTables({}); setCompanies({}); setMenuStatus({}); setTableFamilies({});
+             setZones([]); setOrders([]); setBusinessDay({ isOpen: false, startTime: null, totalSales: 0, voids: [], sales: [] }); setPastDays([]); setActiveTables({}); setCompanies([]); setMenuStatus({}); setTableFamilies({});
           }
         }
         

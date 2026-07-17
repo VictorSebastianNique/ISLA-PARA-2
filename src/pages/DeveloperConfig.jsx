@@ -361,7 +361,7 @@ export default function DeveloperConfig() {
                     onChange={val => setSelectedBillingCompany(val)}
                     options={[
                       { value: '', label: '-- Seleccione --' },
-                      ...(companies || []).map(c => ({ value: c.id, label: `${c.name} (${c.ruc})` }))
+                      ...(Array.isArray(companies) ? companies : []).map(c => ({ value: c.id, label: `${c.name} (${c.ruc})` }))
                     ]}
                   />
                 </div>
