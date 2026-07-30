@@ -10,7 +10,6 @@ import Kardex from './pages/Kardex';
 import DeveloperConfig from './pages/DeveloperConfig';
 import CustomerApp from './pages/CustomerApp';
 import Anfitriona from './pages/Anfitriona';
-import LandingPage from './pages/LandingPage';
 import { useStore } from './context/StoreContext';
 import { AlertProvider } from './context/AlertContext';
 
@@ -137,7 +136,18 @@ const SmartRoot = () => {
   }, [currentUser, locations, navigate]);
 
   // Fallback si no hay sede guardada (ej. primera vez que abren la PWA desde la raíz)
-  return <LandingPage />;
+  return (
+    <div className="container flex flex-col items-center justify-center animate-fade-in" style={{ minHeight: '100vh', textAlign: 'center' }}>
+      <div className="card login-card" style={{ padding: '2rem' }}>
+        <h1 className="title" style={{ fontSize: '2rem', marginBottom: '1rem', color: 'var(--primary-color)' }}>
+          ISLA PARA 2
+        </h1>
+        <p className="subtitle" style={{ fontSize: '1rem' }}>
+          Por favor, ingresa al sistema utilizando el enlace único de tu sucursal.
+        </p>
+      </div>
+    </div>
+  );
 };
 
 /* ── App Root ─────────────────────────────────────────────── */
