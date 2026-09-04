@@ -9,6 +9,13 @@ const requireAuth = (req, res, next) => {
     return next();
   }
 
+  // Bypass para la App Cliente (CRM) que no tiene login de staff
+  const clientApp = req.headers['x-client-app'];
+  if (clientApp === 'customer') {
+    req.user = { role: 'customer' };
+    return next();
+  }
+
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {

@@ -45,6 +45,7 @@ export const StoreProvider = ({ children }) => {
     const headers = {};
     if (token) headers['Authorization'] = `Bearer ${token}`;
     if (devToken) headers['x-dev-master'] = devToken;
+    if (window.location.pathname.startsWith('/app')) headers['x-client-app'] = 'customer';
     return headers;
   };
 
