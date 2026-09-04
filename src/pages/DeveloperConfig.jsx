@@ -34,9 +34,24 @@ export default function DeveloperConfig() {
   const [showClave, setShowClave] = useState(false);
   const [billingSavedMsg, setBillingSavedMsg] = useState('');
 
+  const getLocalAuthHeaders = () => {
+    const token = localStorage.getItem('jwtToken');
+    const devToken = localStorage.getItem('devToken');
+    const headers = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (devToken) headers['x-dev-master'] = devToken;
+    return headers;
+  };
+
+  useEffect(() => {
+    if (localStorage.getItem('devToken') === 'devmaster2026') {
+      setIsAuthenticated(true);
+    }
+  }, []);
+
   useEffect(() => {
     if (isAuthenticated) {
-      fetch('/api/store/secure/billing')
+      fetch('/api/store/secure/billing', { headers: getLocalAuthHeaders() })
         .then(res => res.json())
         .then(data => setSecureBilling(data || {}))
         .catch(err => console.error('Error fetching secure billing:', err));
@@ -59,7 +74,7 @@ export default function DeveloperConfig() {
     try {
       await fetch('/api/store/secure/billing', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getLocalAuthHeaders() },
         body: JSON.stringify(newSecureBilling)
       });
       setBillingSavedMsg('¡Guardado!');
@@ -75,6 +90,7 @@ export default function DeveloperConfig() {
     if (password === 'devmaster2026') {
       setIsAuthenticated(true);
       setError('');
+      localStorage.setItem('devToken', password);
     } else {
       setError('Clave maestra incorrecta');
     }
@@ -184,6 +200,8 @@ export default function DeveloperConfig() {
       localStorage.removeItem('currentUserData');
       localStorage.removeItem('currentLocationId');
       localStorage.removeItem('lastRole');
+      localStorage.removeItem('devToken');
+      localStorage.removeItem('jwtToken');
       showAlert('Sesiones borradas.');
       navigate('/');
     }
@@ -234,7 +252,11 @@ export default function DeveloperConfig() {
           <h1 className="title flex items-center gap-3" style={{ color: '#00ffcc', fontSize: '1.75rem' }}>
             <Server size={28} /> System Config [DEV]
           </h1>
-          <button className="btn btn-outline" style={{ borderColor: '#333', color: '#888' }} onClick={() => navigate('/')}>
+          <button className="btn btn-outline" style={{ borderColor: '#333', color: '#888' }} onClick={() => {
+            localStorage.removeItem('devToken');
+            setIsAuthenticated(false);
+            navigate('/');
+          }}>
             Salir
           </button>
         </div>
