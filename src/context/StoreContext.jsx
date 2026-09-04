@@ -961,22 +961,34 @@ if (barCart.length > 0) {
     }
   };
   const saveDailyMenuItems = (items) => {
+    const newItems = items.map(item => ({
+      ...item,
+      id: uuidv4(),
+      isDailyMenu: true,
+      active: true
+    }));
+
     setCatalogs(prev => prev.map(catalog => {
       if (catalog.active) {
         return {
           ...catalog,
-          items: catalog.items.filter(item => !item.isDailyMenu).concat(
-            items.map(item => ({
-              ...item,
-              id: uuidv4(),
-              isDailyMenu: true,
-              active: true
-            }))
-          )
+          items: catalog.items.filter(item => !item.isDailyMenu).concat(newItems)
         };
       }
       return catalog;
     }));
+
+    // Update Kardex for these new items to reflect their initial stock
+    setBusinessDay(prev => {
+      if (!prev) return prev;
+      const nextKardex = { ...(prev.kardex || {}) };
+      newItems.forEach(item => {
+        if (item.stock !== undefined) {
+          nextKardex[item.id] = { inicial: item.stock, ingresos: 0, mermas: 0, observacion: 'Ingreso inicial menú del día', ventas: 0 };
+        }
+      });
+      return { ...prev, kardex: nextKardex };
+    });
   };
 
   return (

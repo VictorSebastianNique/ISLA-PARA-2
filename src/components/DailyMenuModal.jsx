@@ -61,7 +61,7 @@ export default function DailyMenuModal({ isOpen, onClose, onSkip, onSave }) {
   };
 
   const handleAddItem = () => {
-    setMenuItems([...menuItems, { name: '', category: 'Fondo del Día', price: 0 }]);
+    setMenuItems([...menuItems, { name: '', category: 'Fondo del Día', price: 0, stock: 20 }]);
   };
 
   const handleSave = () => {
@@ -136,6 +136,7 @@ export default function DailyMenuModal({ isOpen, onClose, onSkip, onSave }) {
                   <tr style={{ borderBottom: '1px solid var(--border-color)' }}>
                     <th className="pb-2">Plato</th>
                     <th className="pb-2">Categoría (Ej. Entrada, Fondo)</th>
+                    <th className="pb-2">Stock</th>
                     <th className="pb-2">Precio (S/)</th>
                     <th className="pb-2"></th>
                   </tr>
@@ -148,6 +149,9 @@ export default function DailyMenuModal({ isOpen, onClose, onSkip, onSave }) {
                       </td>
                       <td className="py-2 pr-2">
                         <input className="input w-full" value={item.category} onChange={e => handleUpdateItem(idx, 'category', e.target.value)} />
+                      </td>
+                      <td className="py-2 pr-2">
+                        <input type="number" className="input w-full" value={item.stock !== undefined ? item.stock : 20} onChange={e => handleUpdateItem(idx, 'stock', parseInt(e.target.value) || 0)} style={{ width: '70px' }} />
                       </td>
                       <td className="py-2 pr-2">
                         <input type="number" className="input w-full" value={item.price} onChange={e => handleUpdateItem(idx, 'price', parseFloat(e.target.value) || 0)} style={{ width: '80px' }} />

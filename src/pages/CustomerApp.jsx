@@ -87,6 +87,7 @@ export default function CustomerApp() {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [selectedPromo, setSelectedPromo] = useState(null);
+  const [selectedEntradaId, setSelectedEntradaId] = useState('');
 
   useEscapeKey(() => {
     if (isCartOpen) setIsCartOpen(false);
@@ -195,16 +196,36 @@ export default function CustomerApp() {
     });
   }, [menu, search, selectedCat, selectedSubcat]);
 
-  const handleOpenItemModal = (item) => { setPendingItem(item); setItemQty(''); setItemDetails(''); };
+  const handleOpenItemModal = (item) => { setPendingItem(item); setItemQty(''); setItemDetails(''); setSelectedEntradaId(''); };
   const appendQty = (num) => { if (itemQty.length < 3) setItemQty(prev => prev + num); };
   const clearQty = () => setItemQty('');
   const confirmAddItem = () => {
     const qty = parseInt(itemQty) || 1;
+    
+    // Add Fondo
     setCart(prev => {
       const ex = prev.find(i => i.item.id === pendingItem.id && i.details === itemDetails);
-      if (ex) return prev.map(i => (i.item.id === pendingItem.id && i.details === itemDetails) ? { ...i, quantity: i.quantity + qty } : i);
-      return [...prev, { item: pendingItem, quantity: qty, details: itemDetails }];
+      let newCart = [...prev];
+      if (ex) {
+        newCart = newCart.map(i => (i.item.id === pendingItem.id && i.details === itemDetails) ? { ...i, quantity: i.quantity + qty } : i);
+      } else {
+        newCart = [...newCart, { item: pendingItem, quantity: qty, details: itemDetails }];
+      }
+      return newCart;
     });
+
+    // Add Entrada if selected
+    if (selectedEntradaId) {
+      const entradaItem = menu.find(i => i.id === selectedEntradaId);
+      if (entradaItem) {
+        setCart(prev => {
+          const ex = prev.find(i => i.item.id === entradaItem.id && i.details === 'Entrada de Menú');
+          if (ex) return prev.map(i => (i.item.id === entradaItem.id && i.details === 'Entrada de Menú') ? { ...i, quantity: i.quantity + qty } : i);
+          return [...prev, { item: entradaItem, quantity: qty, details: 'Entrada de Menú' }];
+        });
+      }
+    }
+
     setPendingItem(null);
   };
   const removeFromCart = (id, details = '') => {
@@ -219,7 +240,14 @@ export default function CustomerApp() {
     setCart(prev => prev.map(i => (i.item.id === id && (i.details || '') === details) ? { ...i, quantity: i.quantity + 1 } : i));
   };
 
-  const cartSubTotal = cart.reduce((sum, i) => sum + (i.item.price * i.quantity), 0);
+  const cartItemsTotal = cart.reduce((sum, i) => sum + (i.item.price * i.quantity), 0);
+  
+  // Taper cost: 2 soles for each "Menu" (which we identify by DailyMenu items with price > 0, i.e. Fondos)
+  const dailyMenusCount = cart.filter(c => c.item.isDailyMenu && c.item.price > 0).reduce((sum, c) => sum + c.quantity, 0);
+  const isTakeaway = currentScreen.startsWith('checkout') || deliveryMethod === 'recojo' || deliveryMethod === 'delivery';
+  const taperCost = isTakeaway ? dailyMenusCount * 2 : 0;
+
+  const cartSubTotal = cartItemsTotal + taperCost;
 
   const discountAmount = useMemo(() => {
     if (!selectedPromo) return 0;
@@ -767,6 +795,13 @@ export default function CustomerApp() {
                     </div>
                   )}
 
+                  {taperCost > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                      <span>Envases (Para llevar)</span>
+                      <span>S/ {taperCost.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   {discountAmount > 0 && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontSize: '0.95rem', fontWeight: 600, color: 'var(--success-color)' }}>
                       <span>Descuento aplicado</span>
@@ -835,10 +870,24 @@ export default function CustomerApp() {
                 </div>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <label style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Notas (Opcional)</label>
-                  <textarea className="input w-full" style={{ resize: 'none', minHeight: isMobile ? '80px' : '150px', marginTop: '0.4rem', borderRadius: '0.75rem', flex: 1 }} placeholder="Ej. Sin cebolla, bien cocido..."
+                  <textarea className="input w-full" style={{ resize: 'none', minHeight: isMobile ? '60px' : '100px', marginTop: '0.4rem', borderRadius: '0.75rem', flex: 1 }} placeholder="Ej. Sin cebolla, bien cocido..."
                     value={itemDetails} onChange={e => setItemDetails(e.target.value)} onClick={e => e.stopPropagation()} />
                 </div>
               </div>
+
+              {pendingItem.category === 'Fondo del Día' && menu.some(i => i.isDailyMenu && i.category === 'Entrada del Día') && (
+                <div style={{ marginTop: '1.2rem', padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '1rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <label style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '0.8rem' }}>Elige tu Entrada (Incluida)</label>
+                  <div style={{ display: 'grid', gap: '0.5rem' }}>
+                    {menu.filter(i => i.isDailyMenu && i.category === 'Entrada del Día').map(entrada => (
+                      <label key={entrada.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', padding: '0.6rem', borderRadius: '0.5rem', background: selectedEntradaId === entrada.id ? 'rgba(255,107,43,0.1)' : 'transparent', border: `1px solid ${selectedEntradaId === entrada.id ? 'var(--primary-color)' : 'transparent'}`, transition: 'all 0.2s ease' }} onClick={e => e.stopPropagation()}>
+                        <input type="radio" name="entrada" value={entrada.id} checked={selectedEntradaId === entrada.id} onChange={(e) => setSelectedEntradaId(e.target.value)} style={{ accentColor: 'var(--primary-color)' }} />
+                        <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{entrada.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <button onClick={e => { e.stopPropagation(); confirmAddItem(); }}
                 style={{ marginTop: '1.25rem', width: '100%', padding: '1rem', borderRadius: '0.85rem', border: 'none', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', color: 'white', background: 'linear-gradient(135deg, #ff6b2b, #f59e0b)', boxShadow: '0 8px 24px rgba(255,107,43,0.3)' }}>

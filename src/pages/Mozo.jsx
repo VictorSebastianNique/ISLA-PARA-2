@@ -105,6 +105,7 @@ export default function Mozo() {
   const [sessionWaiter, setSessionWaiter] = useState(null);
   const [pendingTableAuth, setPendingTableAuth] = useState(null);
   const [authSelectedUser, setAuthSelectedUser] = useState('');
+  const [selectedEntradaId, setSelectedEntradaId] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authError, setAuthError] = useState('');
 
@@ -282,6 +283,7 @@ export default function Mozo() {
     setPendingItem(item);
     setItemQty('');
     setItemDetails('');
+    setSelectedEntradaId('');
   };
 
   const appendQty = (num) => {
@@ -303,13 +305,26 @@ export default function Mozo() {
   };
 
   const proceedAddItem = (qty) => {
-    const existing = cart.find(c => c.item.id === pendingItem.id && c.status === 'new' && c.details === itemDetails.trim());
-    let newCart;
+    let newCart = [...cart];
+    const existing = newCart.find(c => c.item.id === pendingItem.id && c.status === 'new' && c.details === itemDetails.trim());
     if (existing) {
-      newCart = cart.map(c => c.id === existing.id ? { ...c, quantity: c.quantity + qty } : c);
+      newCart = newCart.map(c => c.id === existing.id ? { ...c, quantity: c.quantity + qty } : c);
     } else {
-      newCart = [...cart, { id: uuidv4(), item: pendingItem, quantity: qty, details: itemDetails.trim(), status: 'new', timestamp: Date.now(), mozoId: sessionWaiter?.id }];
+      newCart.push({ id: uuidv4(), item: pendingItem, quantity: qty, details: itemDetails.trim(), status: 'new', timestamp: Date.now(), mozoId: sessionWaiter?.id });
     }
+
+    if (selectedEntradaId) {
+      const entradaItem = menu.find(i => i.id === selectedEntradaId);
+      if (entradaItem) {
+        const existingEntrada = newCart.find(c => c.item.id === entradaItem.id && c.status === 'new' && c.details === 'Entrada de Menú');
+        if (existingEntrada) {
+          newCart = newCart.map(c => c.id === existingEntrada.id ? { ...c, quantity: c.quantity + qty } : c);
+        } else {
+          newCart.push({ id: uuidv4(), item: entradaItem, quantity: qty, details: 'Entrada de Menú', status: 'new', timestamp: Date.now(), mozoId: sessionWaiter?.id });
+        }
+      }
+    }
+
     updateTableCart(tableKey, newCart);
     setPendingItem(null);
   };
@@ -964,8 +979,22 @@ export default function Mozo() {
               </div>
             </div>
 
+            {pendingItem.category === 'Fondo del Día' && menu.some(i => i.isDailyMenu && i.category === 'Entrada del Día') && (
+              <div style={{ marginTop: '1.2rem', padding: '1rem', background: 'var(--surface-color)', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
+                <label style={{ display: 'block', fontSize: '0.9rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: '0.8rem' }}>Elige tu Entrada (Incluida)</label>
+                <div style={{ display: 'grid', gap: '0.5rem' }}>
+                  {menu.filter(i => i.isDailyMenu && i.category === 'Entrada del Día').map(entrada => (
+                    <label key={entrada.id} style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', cursor: 'pointer', padding: '0.6rem', borderRadius: '0.5rem', background: selectedEntradaId === entrada.id ? 'rgba(255,107,43,0.1)' : 'transparent', border: `1px solid ${selectedEntradaId === entrada.id ? 'var(--primary-color)' : 'transparent'}`, transition: 'all 0.2s ease' }} onClick={e => e.stopPropagation()}>
+                      <input type="radio" name="entrada_mozo" value={entrada.id} checked={selectedEntradaId === entrada.id} onChange={(e) => setSelectedEntradaId(e.target.value)} style={{ accentColor: 'var(--primary-color)' }} />
+                      <span style={{ fontSize: '0.9rem', color: 'var(--text-primary)' }}>{entrada.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button className="btn btn-primary w-full justify-center mt-6" style={{ padding: '1rem', fontSize: '1.1rem' }} onClick={confirmAddItem}>
-              Añadir a la cuenta (S/{(pendingItem.price * parseInt(itemQty)).toFixed(2)})
+              Añadir a la cuenta (S/{(pendingItem.price * parseInt(itemQty || '1')).toFixed(2)})
             </button>
           </div>
         </div>

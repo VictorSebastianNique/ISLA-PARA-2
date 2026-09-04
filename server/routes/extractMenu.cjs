@@ -24,10 +24,14 @@ router.post('/extract-menu', upload.single('image'), async (req, res) => {
       Extrae los platos que se ofrecen en este flyer del menú del día.
       Ignora textos irrelevantes como fechas, horas o publicidad general.
       
+      IMPORTANTE: Las 'Entradas' son complementos del menú, por lo tanto su precio SIEMPRE debe ser 0.
+      El precio total del menú se define por el 'Plato Principal' (Fondo).
+      Añade también una propiedad "stock" con el valor 20 por defecto a todos los platos.
+      
       Devuelve ÚNICAMENTE un arreglo JSON (sin markdown, sin bloques de código, solo el texto JSON plano) con la siguiente estructura exacta:
       [
-        { "name": "Nombre del Plato", "category": "Entrada del Día", "price": 0 },
-        { "name": "Nombre del Plato", "category": "Fondo del Día", "price": 0 }
+        { "name": "Nombre del Plato", "category": "Entrada del Día", "price": 0, "stock": 20 },
+        { "name": "Nombre del Plato", "category": "Fondo del Día", "price": 15, "stock": 20 }
       ]
       
       Instrucciones importantes:
