@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../context/StoreContext';
 import { useEscapeKey } from '../hooks/useEscapeKey';
 import CustomSelect from '../components/CustomSelect';
-import { ShoppingCart, Search, User, ChevronLeft, Plus, Minus, X, Check, MapPin, Star, QrCode, ArrowRight, LogOut, Coffee, Pizza, Croissant, CakeSlice, CreditCard, Banknote, Smartphone, Clock, Sparkles, Gift, TrendingUp, ChefHat, Truck, Store, Phone, Tag, BellRing } from 'lucide-react';
+import { ShoppingCart, Search, User, ChevronLeft, Plus, Minus, X, Check, MapPin, Star, QrCode, ArrowRight, LogOut, Coffee, Pizza, Croissant, CakeSlice, CreditCard, Banknote, Smartphone, Clock, Sparkles, Gift, TrendingUp, ChefHat, Truck, Store, Phone, Tag, BellRing, Settings } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 
 // --- Helper: Category visual mapping ---
@@ -70,7 +70,7 @@ const LEVEL_THEMES = {
 export default function CustomerApp() {
   const { showAlert } = useAlert();
   const navigate = useNavigate();
-  const { locations, menu, categories, subcategories, customers, addCustomer, orders, setOrders, updateCustomerPoints, updateOrderStatus, menuStatus, registerOnlineSale, promotions } = useStore();
+  const { locations, menu, categories, subcategories, customers, addCustomer, updateCustomer, orders, setOrders, updateCustomerPoints, updateOrderStatus, menuStatus, registerOnlineSale, promotions } = useStore();
 
   const [currentScreen, setCurrentScreen] = useState('login');
   const [loggedCustomer, setLoggedCustomer] = useState(null);
@@ -79,6 +79,9 @@ export default function CustomerApp() {
   const [pin, setPin] = useState('');
   const [name, setName] = useState('');
   const [authError, setAuthError] = useState('');
+  const [settingsName, setSettingsName] = useState('');
+  const [settingsPhone, setSettingsPhone] = useState('');
+  const [settingsPin, setSettingsPin] = useState('');
 
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [search, setSearch] = useState('');
@@ -380,6 +383,63 @@ export default function CustomerApp() {
     </div>
   );
 
+  // ── SETTINGS ──
+  const openSettings = () => {
+    setSettingsName(loggedCustomer.name);
+    setSettingsPhone(loggedCustomer.phone);
+    setSettingsPin(loggedCustomer.pin);
+    setCurrentScreen('settings');
+  };
+
+  const handleSaveSettings = (e) => {
+    e.preventDefault();
+    if (!settingsName || !settingsPhone || !settingsPin) {
+      return showAlert('Todos los campos son obligatorios', 'error');
+    }
+    const updatedCustomer = { ...loggedCustomer, name: settingsName, phone: settingsPhone, pin: settingsPin };
+    updateCustomer(loggedCustomer.id, { name: settingsName, phone: settingsPhone, pin: settingsPin });
+    setLoggedCustomer(updatedCustomer);
+    showAlert('Perfil actualizado correctamente', 'success');
+    setCurrentScreen('dashboard');
+  };
+
+  const renderSettings = () => (
+    <div className="animate-fade-in" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-color)', backgroundImage: 'var(--bg-gradient)' }}>
+      <div style={{ padding: '1.2rem 1.5rem', display: 'flex', alignItems: 'center', gap: '0.8rem', background: 'var(--surface-solid)', borderBottom: '1px solid var(--border-color)', position: 'sticky', top: 0, zIndex: 10 }}>
+        <button onClick={() => setCurrentScreen('dashboard')} style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', display: 'flex' }}><ChevronLeft size={22} /></button>
+        <h2 style={{ margin: 0, fontFamily: 'Outfit, sans-serif', fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>Mi Perfil</h2>
+      </div>
+      <div style={{ padding: '2rem 1.5rem' }}>
+        <form onSubmit={handleSaveSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem', maxWidth: '400px', margin: '0 auto' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.4rem', fontWeight: 600 }}>Nombre Completo</label>
+            <div style={{ position: 'relative' }}>
+              <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input type="text" className="input w-full" value={settingsName} onChange={e => setSettingsName(e.target.value)} style={{ paddingLeft: '2.5rem' }} />
+            </div>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.4rem', fontWeight: 600 }}>Número de Celular</label>
+            <div style={{ position: 'relative' }}>
+              <Phone size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input type="tel" className="input w-full" value={settingsPhone} onChange={e => setSettingsPhone(e.target.value)} style={{ paddingLeft: '2.5rem' }} />
+            </div>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.4rem', fontWeight: 600 }}>Contraseña (PIN)</label>
+            <div style={{ position: 'relative' }}>
+              <Star size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input type="password" className="input w-full" value={settingsPin} onChange={e => setSettingsPin(e.target.value)} style={{ paddingLeft: '2.5rem' }} />
+            </div>
+          </div>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '1rem', padding: '0.9rem', fontSize: '1rem' }}>
+            Guardar Cambios
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+
   // ── DASHBOARD ──
   const renderDashboard = () => {
     const lvl = LEVEL_THEMES[loggedCustomer.level] || LEVEL_THEMES.Bronce;
@@ -390,6 +450,9 @@ export default function CustomerApp() {
       <div className="animate-fade-in" style={{ minHeight: '100vh', backgroundColor: 'var(--bg-color)', backgroundImage: 'var(--bg-gradient)', paddingBottom: '2rem' }}>
         {/* Header */}
         <div style={{ background: 'linear-gradient(180deg, rgba(255,107,43,0.08) 0%, transparent 100%)', padding: '2.5rem 1.5rem 2rem', position: 'relative' }}>
+          <button onClick={openSettings} style={{ position: 'absolute', top: '1.5rem', right: '4.5rem', ...glassCard({ borderRadius: '50%', padding: '0.6rem', cursor: 'pointer', display: 'flex' }) }}>
+            <Settings size={18} color="var(--text-secondary)" />
+          </button>
           <button onClick={handleLogout} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', ...glassCard({ borderRadius: '50%', padding: '0.6rem', cursor: 'pointer', display: 'flex' }) }}>
             <LogOut size={18} color="var(--text-secondary)" />
           </button>
@@ -1085,6 +1148,7 @@ export default function CustomerApp() {
   switch (currentScreen) {
     case 'login': return renderLogin();
     case 'dashboard': return renderDashboard();
+    case 'settings': return renderSettings();
     case 'scanner': return renderScanner();
     case 'location_select': return renderLocationSelect();
     case 'menu': return renderMenu();
