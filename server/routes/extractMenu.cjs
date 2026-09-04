@@ -17,7 +17,7 @@ router.post('/extract-menu', upload.single('image'), async (req, res) => {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
     const prompt = `
       Eres un asistente experto en lectura de menús de restaurantes.
