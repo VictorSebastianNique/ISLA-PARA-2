@@ -11,6 +11,7 @@ import CrmTab from '../components/CrmTab';
 import CustomSelect from '../components/CustomSelect';
 import { getTodayOperatingWeather } from '../utils/weatherService';
 import { useEscapeKey } from '../hooks/useEscapeKey';
+import DailyMenuModal from '../components/DailyMenuModal';
 
 export default function Admin() {
   const { showAlert } = useAlert();
@@ -28,7 +29,7 @@ export default function Admin() {
     activeTables,
     companies, addCompany, updateCompany, deleteCompany,
     locations, addLocation, updateLocation, deleteLocation, 
-    developerSettings, setDeveloperSettings } = useStore();
+    developerSettings, setDeveloperSettings, saveDailyMenuItems } = useStore();
   
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const currentLoc = locations?.find(l => l.id === localStorage.getItem('currentLocationId'));
@@ -98,6 +99,27 @@ export default function Admin() {
 
   // Add Location Modal
   const [showAddLocationModal, setShowAddLocationModal] = useState(false);
+
+  // Daily Menu Modal
+  const [showDailyMenuModal, setShowDailyMenuModal] = useState(false);
+
+  const handleOpenDayClick = () => {
+    const dayOfWeek = new Date().getDay();
+    // 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday
+    if ([2, 3, 4, 5].includes(dayOfWeek)) {
+      setShowDailyMenuModal(true);
+    } else {
+      openDay();
+    }
+  };
+
+  const handleDailyMenuSave = async (items) => {
+    if (items && items.length > 0) {
+       saveDailyMenuItems(items);
+    }
+    setShowDailyMenuModal(false);
+    openDay();
+  };
   
   // Add Company Modal
   const [showAddCompanyModal, setShowAddCompanyModal] = useState(false);
@@ -694,7 +716,7 @@ export default function Admin() {
                       </p>
                     )}
 
-                    <button className="btn btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.1rem' }} onClick={openDay}>
+                    <button className="btn btn-primary" style={{ padding: '1rem 3rem', fontSize: '1.1rem' }} onClick={handleOpenDayClick}>
                       Abrir Nuevo Día
                     </button>
                   </>
@@ -1650,6 +1672,16 @@ export default function Admin() {
           onClose={() => setRecipeMenu(null)}
         />
       )}
+
+      <DailyMenuModal 
+        isOpen={showDailyMenuModal}
+        onClose={() => setShowDailyMenuModal(false)}
+        onSkip={() => {
+          setShowDailyMenuModal(false);
+          openDay();
+        }}
+        onSave={handleDailyMenuSave}
+      />
 
       {showAddLocationModal && createPortal(
         <div className="modal-overlay animate-fade-in" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>

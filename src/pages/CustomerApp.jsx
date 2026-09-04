@@ -185,8 +185,12 @@ export default function CustomerApp() {
     return menu.filter(item => {
       if (item.active === false) return false;
       const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase());
+      if (selectedCat === 'daily') {
+        return matchesSearch && item.isDailyMenu;
+      }
       const matchesCat = selectedCat === 'all' || item.categoryId === selectedCat;
       const matchesSubcat = selectedSubcat === 'all' || item.subcategoryId === selectedSubcat;
+      // Si está en 'all', ocultamos el menú del día para que no se mezcle, o lo mostramos? Lo mostramos es mejor.
       return matchesSearch && matchesCat && matchesSubcat;
     });
   }, [menu, search, selectedCat, selectedSubcat]);
@@ -619,6 +623,12 @@ export default function CustomerApp() {
                   style={{ whiteSpace: 'nowrap', padding: '0.5rem 1rem', borderRadius: '99px', border: selectedCat === 'all' ? 'none' : '1px solid rgba(255,255,255,0.08)', background: selectedCat === 'all' ? 'linear-gradient(135deg, var(--primary-color), var(--warning-color))' : 'rgba(255,255,255,0.04)', color: selectedCat === 'all' ? 'white' : 'var(--text-secondary)', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                   🍽️ Todos
                 </button>
+                {menu.some(i => i.isDailyMenu) && (
+                  <button onClick={() => { setSelectedCat('daily'); setSelectedSubcat('all'); }}
+                    style={{ whiteSpace: 'nowrap', padding: '0.5rem 1rem', borderRadius: '99px', border: selectedCat === 'daily' ? 'none' : '1px solid rgba(255,255,255,0.08)', background: selectedCat === 'daily' ? 'linear-gradient(135deg, #10b981, #059669)' : 'rgba(255,255,255,0.04)', color: selectedCat === 'daily' ? 'white' : 'var(--success-color)', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', alignItems: 'center', gap: '0.3rem', boxShadow: selectedCat === 'daily' ? '0 4px 12px rgba(16,185,129,0.3)' : 'none' }}>
+                    ✨ Menú del Día
+                  </button>
+                )}
                 {categories.filter(c => c.active).map(cat => {
                   const theme = getCatTheme(cat.name);
                   const isActive = selectedCat === cat.id;

@@ -394,6 +394,17 @@ export const StoreProvider = ({ children }) => {
   const closeDay = (closeDetails) => {
     setPastDays(prev => [{ ...businessDay, endTime: Date.now() }, ...prev]);
     setBusinessDay(prev => ({ isOpen: false, lastClosedTotal: prev.totalSales, sales: [], voids: [], incomes: [], expenses: [] }));
+    
+    // Purge temporary daily menu items
+    setCatalogs(prev => prev.map(catalog => {
+      if (catalog.active && catalog.items) {
+        return {
+          ...catalog,
+          items: catalog.items.filter(item => !item.isDailyMenu)
+        };
+      }
+      return catalog;
+    }));
   };
 
   // V3 Actions: Tables
@@ -949,9 +960,28 @@ if (barCart.length > 0) {
       }));
     }
   };
+  const saveDailyMenuItems = (items) => {
+    setCatalogs(prev => prev.map(catalog => {
+      if (catalog.active) {
+        return {
+          ...catalog,
+          items: catalog.items.filter(item => !item.isDailyMenu).concat(
+            items.map(item => ({
+              ...item,
+              id: uuidv4(),
+              isDailyMenu: true,
+              active: true
+            }))
+          )
+        };
+      }
+      return catalog;
+    }));
+  };
 
   return (
     <StoreContext.Provider value={{
+      saveDailyMenuItems,
       currentUser, setCurrentUser,
       login, logout, logAudit,
       users, addUser: addItem(setUsers), updateUser: updateItem(setUsers), deleteUser: deleteItem(setUsers),

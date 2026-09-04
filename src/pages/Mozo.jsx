@@ -609,6 +609,15 @@ export default function Mozo() {
 
               {/* Categories */}
               <div className="flex gap-2 overflow-x-auto pb-4 mb-2" style={{ scrollbarWidth: 'none', maxWidth: '100vw' }}>
+                {menu.some(i => i.isDailyMenu) && (
+                  <button 
+                    className={`btn ${activeCategory === 'daily' ? 'btn-primary' : 'btn-outline'}`}
+                    style={{ whiteSpace: 'nowrap', border: activeCategory === 'daily' ? 'none' : undefined, background: activeCategory === 'daily' ? 'linear-gradient(135deg, #10b981, #059669)' : undefined, color: activeCategory === 'daily' ? 'white' : 'var(--success-color)' }}
+                    onClick={() => { setActiveCategory('daily'); setActiveSubcategory(''); setMenuSearch(''); }}
+                  >
+                    ✨ Menú del Día
+                  </button>
+                )}
                 {categories.filter(c => c.active).map(c => (
                   <button 
                     key={c.id} 
@@ -651,6 +660,9 @@ export default function Mozo() {
                     if (menuSearch) {
                       return m.active && menuStatus[m.id] !== false && matchesSearch;
                     }
+                    if (activeCategory === 'daily') {
+                      return m.active && menuStatus[m.id] !== false && m.isDailyMenu;
+                    }
                     return m.active && menuStatus[m.id] !== false && m.categoryId === activeCategory && (activeSubcategory === '' || m.subcategoryId === activeSubcategory);
                   })
                   .map(item => {
@@ -684,6 +696,9 @@ export default function Mozo() {
                   const matchesSearch = (m.name || '').toLowerCase().includes(menuSearch.toLowerCase());
                   if (menuSearch) {
                     return m.active && menuStatus[m.id] !== false && matchesSearch;
+                  }
+                  if (activeCategory === 'daily') {
+                    return m.active && menuStatus[m.id] !== false && m.isDailyMenu;
                   }
                   return m.active && menuStatus[m.id] !== false && m.categoryId === activeCategory && (activeSubcategory === '' || m.subcategoryId === activeSubcategory);
                 }).length === 0 && (
