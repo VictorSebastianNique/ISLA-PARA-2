@@ -78,10 +78,12 @@ export default function CustomerApp() {
   const [phone, setPhone] = useState('');
   const [pin, setPin] = useState('');
   const [name, setName] = useState('');
+  const [dni, setDni] = useState('');
   const [authError, setAuthError] = useState('');
   const [settingsName, setSettingsName] = useState('');
   const [settingsPhone, setSettingsPhone] = useState('');
   const [settingsPin, setSettingsPin] = useState('');
+  const [settingsDni, setSettingsDni] = useState('');
 
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [search, setSearch] = useState('');
@@ -171,8 +173,9 @@ export default function CustomerApp() {
       } else { setAuthError('Celular o PIN incorrectos. Si no tienes cuenta, regístrate.'); }
     } else {
       if (!name) return setAuthError('Por favor ingresa tu nombre.');
+      if (!dni) return setAuthError('Por favor ingresa tu DNI para las recompensas.');
       if (customers?.find(c => c.phone === phone)) return setAuthError('Este número ya está registrado. Inicia sesión.');
-      const newCustomer = { id: Date.now().toString(), name, phone, pin, points: 0, level: 'Bronce', totalSpent: 0 };
+      const newCustomer = { id: Date.now().toString(), name, phone, pin, dni, points: 0, level: 'Bronce', totalSpent: 0 };
       addCustomer(newCustomer); setLoggedCustomer(newCustomer); localStorage.setItem('customerId', newCustomer.id); setCurrentScreen('dashboard');
     }
   };
@@ -341,13 +344,22 @@ export default function CustomerApp() {
           )}
           <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
             {authMode === 'register' && (
-              <div>
-                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tu Nombre</label>
-                <div style={{ position: 'relative' }}>
-                  <User size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                  <input type="text" className="input w-full" placeholder="Ej. Juan Pérez" value={name} onChange={e => setName(e.target.value)} style={{ paddingLeft: '2.8rem', padding: '0.9rem 1rem 0.9rem 2.8rem', fontSize: '1rem', borderRadius: '0.85rem' }} />
+              <>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tu Nombre</label>
+                  <div style={{ position: 'relative' }}>
+                    <User size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input type="text" className="input w-full" placeholder="Ej. Juan Pérez" value={name} onChange={e => setName(e.target.value)} style={{ paddingLeft: '2.8rem', padding: '0.9rem 1rem 0.9rem 2.8rem', fontSize: '1rem', borderRadius: '0.85rem' }} />
+                  </div>
                 </div>
-              </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>DNI (Para recompensas)</label>
+                  <div style={{ position: 'relative' }}>
+                    <CreditCard size={16} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+                    <input type="text" className="input w-full" placeholder="Tu número de DNI" value={dni} onChange={e => setDni(e.target.value)} maxLength={8} style={{ paddingLeft: '2.8rem', padding: '0.9rem 1rem 0.9rem 2.8rem', fontSize: '1rem', borderRadius: '0.85rem' }} />
+                  </div>
+                </div>
+              </>
             )}
             <div>
               <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '0.4rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Celular</label>
@@ -388,16 +400,17 @@ export default function CustomerApp() {
     setSettingsName(loggedCustomer.name);
     setSettingsPhone(loggedCustomer.phone);
     setSettingsPin(loggedCustomer.pin);
+    setSettingsDni(loggedCustomer.dni || '');
     setCurrentScreen('settings');
   };
 
   const handleSaveSettings = (e) => {
     e.preventDefault();
     if (!settingsName || !settingsPhone || !settingsPin) {
-      return showAlert('Todos los campos son obligatorios', 'error');
+      return showAlert('Nombre, celular y PIN son obligatorios', 'error');
     }
-    const updatedCustomer = { ...loggedCustomer, name: settingsName, phone: settingsPhone, pin: settingsPin };
-    updateCustomer(loggedCustomer.id, { name: settingsName, phone: settingsPhone, pin: settingsPin });
+    const updatedCustomer = { ...loggedCustomer, name: settingsName, phone: settingsPhone, pin: settingsPin, dni: settingsDni };
+    updateCustomer(loggedCustomer.id, { name: settingsName, phone: settingsPhone, pin: settingsPin, dni: settingsDni });
     setLoggedCustomer(updatedCustomer);
     showAlert('Perfil actualizado correctamente', 'success');
     setCurrentScreen('dashboard');
@@ -423,6 +436,13 @@ export default function CustomerApp() {
             <div style={{ position: 'relative' }}>
               <Phone size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
               <input type="tel" className="input w-full" value={settingsPhone} onChange={e => setSettingsPhone(e.target.value)} style={{ paddingLeft: '2.5rem' }} />
+            </div>
+          </div>
+          <div>
+            <label style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.4rem', fontWeight: 600 }}>DNI (Para recompensas)</label>
+            <div style={{ position: 'relative' }}>
+              <CreditCard size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+              <input type="text" className="input w-full" value={settingsDni} onChange={e => setSettingsDni(e.target.value)} maxLength={8} style={{ paddingLeft: '2.5rem' }} placeholder="Tu número de DNI" />
             </div>
           </div>
           <div>
@@ -542,18 +562,6 @@ export default function CustomerApp() {
 
           {/* Action Buttons */}
           <div className="animate-slide-up" style={{ display: 'grid', gap: '0.85rem', marginBottom: '1.5rem', animationDelay: '0.2s' }}>
-            <button onClick={() => setCurrentScreen('scanner')}
-              style={{ ...glassCard({ padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', textAlign: 'left', transition: 'all 0.3s ease' }) }}
-              onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; }}
-              onMouseOut={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; }}>
-              <div style={{ background: 'rgba(99,102,241,0.15)', padding: '0.85rem', borderRadius: '0.85rem', color: '#6366f1', display: 'flex' }}><QrCode size={24} /></div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '1.05rem', fontWeight: 700 }}>Check-in en Mesa</h3>
-                <p style={{ margin: '0.1rem 0 0', color: 'var(--text-muted)', fontSize: '0.82rem' }}>Escanea el QR y gana puntos</p>
-              </div>
-              <ArrowRight size={18} color="var(--text-muted)" />
-            </button>
-
             <button onClick={() => setCurrentScreen('location_select')}
               style={{ padding: '1.2rem', borderRadius: '1.25rem', display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', textAlign: 'left', border: 'none', background: 'linear-gradient(135deg, #ff6b2b, #f59e0b)', boxShadow: '0 8px 32px rgba(255,107,43,0.3)', transition: 'all 0.3s ease' }}
               onMouseOver={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(255,107,43,0.45)'; }}
@@ -697,10 +705,10 @@ export default function CustomerApp() {
           </>}
         />
 
-        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', maxWidth: '1200px', width: '100%', margin: '0 auto', padding: isMobile ? '0.5rem' : '1.5rem' }}>
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', maxWidth: '1200px', width: '100%', margin: '0 auto', padding: isMobile ? '1rem' : '1.5rem' }}>
           <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'row', gap: '1.5rem', overflow: 'hidden' }}>
             {/* Menu Side */}
-            <div style={{ flex: isMobile ? undefined : 2, width: isMobile ? '100%' : undefined, minHeight: 0, display: isMobile && isCartOpen ? 'none' : 'flex', flexDirection: 'column', overflowY: 'auto', paddingRight: isMobile ? 0 : '0.5rem' }}>
+            <div style={{ flex: isMobile ? undefined : 2, width: isMobile ? '100%' : undefined, minHeight: 0, display: isMobile && isCartOpen ? 'none' : 'flex', flexDirection: 'column', overflowY: 'auto', paddingRight: isMobile ? 0 : '0.5rem', paddingBottom: '2rem' }}>
               {/* Search */}
               <div style={{ marginBottom: '0.85rem', position: 'relative' }}>
                 <Search size={16} style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />

@@ -468,6 +468,19 @@ export const StoreProvider = ({ children }) => {
       else cocinaCart.push(c);
     });
 
+    // Update stock for daily menu items
+    setBusinessDay(prev => {
+      const nextKardex = { ...(prev.kardex || {}) };
+      let changed = false;
+      itemsToSend.forEach(c => {
+        if (c.item.isDailyMenu && nextKardex[c.item.id]) {
+          nextKardex[c.item.id].ventas = (nextKardex[c.item.id].ventas || 0) + c.quantity;
+          changed = true;
+        }
+      });
+      return changed ? { ...prev, kardex: nextKardex } : prev;
+    });
+
 if (cocinaCart.length > 0) {
       setOrders(prev => {
         const existingIdx = prev.findIndex(o => o.zone === zoneName && o.table === tableNum && (!o.station || o.station === 'cocina') && o.status !== 'ready');
@@ -510,15 +523,22 @@ if (barCart.length > 0) {
       const cart = prev[tableKey] || [];
       const itemToVoid = cart.find(c => c.id === itemId);
       
-      // Log the void
+      // Log the void and refund stock if daily menu
       if (itemToVoid) {
         logAudit('ANULACION_ITEM', { item: itemToVoid.item.name, quantity: itemToVoid.quantity, reason, table: tableKey, admin: adminUser.name });
-        setBusinessDay(day => ({
-          ...day,
-          voids: [...(day.voids || []), { 
-            item: itemToVoid.item.name, quantity: itemToVoid.quantity, reason, admin: adminUser.name, timestamp: Date.now(), tableKey
-          }]
-        }));
+        setBusinessDay(day => {
+          const nextKardex = { ...(day.kardex || {}) };
+          if (itemToVoid.item.isDailyMenu && nextKardex[itemToVoid.item.id]) {
+            nextKardex[itemToVoid.item.id].ventas = Math.max(0, (nextKardex[itemToVoid.item.id].ventas || 0) - itemToVoid.quantity);
+          }
+          return {
+            ...day,
+            kardex: nextKardex,
+            voids: [...(day.voids || []), { 
+              item: itemToVoid.item.name, quantity: itemToVoid.quantity, reason, admin: adminUser.name, timestamp: Date.now(), tableKey
+            }]
+          };
+        });
       }
       
       return { ...prev, [tableKey]: cart.filter(c => c.id !== itemId) };

@@ -295,6 +295,31 @@ export default function Mozo() {
     const qty = parseInt(itemQty) || 1;
     if (qty <= 0) return;
 
+    if (pendingItem?.isDailyMenu && businessDay?.kardex?.[pendingItem.id]) {
+      const k = businessDay.kardex[pendingItem.id];
+      const stock = (k.inicial || 0) + (k.ingresos || 0) - (k.mermas || 0) - (k.ventas || 0);
+      const existingInCart = cart.filter(c => c.item.id === pendingItem.id && c.status === 'new').reduce((acc, c) => acc + c.quantity, 0);
+      
+      if (qty + existingInCart > stock) {
+        showAlert(`Solo quedan ${Math.max(0, stock)} unidades disponibles de ${pendingItem.name}.`);
+        return;
+      }
+    }
+
+    if (selectedEntradaId) {
+      const entradaItem = menu.find(i => i.id === selectedEntradaId);
+      if (entradaItem?.isDailyMenu && businessDay?.kardex?.[entradaItem.id]) {
+        const k = businessDay.kardex[entradaItem.id];
+        const stock = (k.inicial || 0) + (k.ingresos || 0) - (k.mermas || 0) - (k.ventas || 0);
+        const existingInCart = cart.filter(c => c.item.id === entradaItem.id && c.status === 'new').reduce((acc, c) => acc + c.quantity, 0);
+        
+        if (qty + existingInCart > stock) {
+          showAlert(`Solo quedan ${Math.max(0, stock)} unidades de la entrada seleccionada.`);
+          return;
+        }
+      }
+    }
+
     if (!tableHeadcounts[tableKey] && cart.length === 0) {
       setPendingHeadcount('1');
       setShowHeadcountModal(true);
@@ -683,13 +708,20 @@ export default function Mozo() {
                   .map(item => {
                     const currentDay = new Date().getDay();
                     const availableToday = !item.availableDays || item.availableDays.length === 0 || item.availableDays.includes(currentDay);
+                    let stock = null;
+                    if (item.isDailyMenu && businessDay?.kardex?.[item.id]) {
+                      const k = businessDay.kardex[item.id];
+                      stock = (k.inicial || 0) + (k.ingresos || 0) - (k.mermas || 0) - (k.ventas || 0);
+                    }
+                    const isOutOfStock = stock !== null && stock <= 0;
+                    
                     return (
-                    <div key={item.id} className="card card-interactive flex justify-between items-center" style={{ gap: '0.5rem', padding: '1rem', opacity: availableToday ? 1 : 0.6, filter: availableToday ? 'none' : 'grayscale(1)' }} onClick={() => {
+                    <div key={item.id} className="card card-interactive flex justify-between items-center" style={{ gap: '0.5rem', padding: '1rem', opacity: (availableToday && !isOutOfStock) ? 1 : 0.6, filter: (availableToday && !isOutOfStock) ? 'none' : 'grayscale(1)' }} onClick={() => {
                       if (!availableToday) {
                         showAlert(`Este plato solo está disponible los días: ${item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}`);
                         return;
                       }
-                      if (menuStatus[item.id] === false) {
+                      if (menuStatus[item.id] === false || isOutOfStock) {
                         showAlert("Este plato se acaba de agotar.");
                         return;
                       }
@@ -698,11 +730,16 @@ export default function Mozo() {
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <div className="flex items-center gap-2 mb-1">
                           <h3 style={{ fontWeight: 500, fontSize: '0.95rem', wordBreak: 'break-word', margin: 0 }}>{item.name}</h3>
+                          {stock !== null && (
+                            <span style={{ fontSize: '0.65rem', padding: '0.15rem 0.4rem', borderRadius: '4px', background: stock > 5 ? 'var(--success-color)' : stock > 0 ? 'var(--warning-color)' : 'var(--danger-color)', color: 'white', fontWeight: 'bold' }}>
+                              STOCK: {stock}
+                            </span>
+                          )}
                         </div>
                         {!availableToday && <p style={{ fontSize: '0.75rem', color: 'var(--warning-color)', margin: '0.1rem 0 0.2rem', fontWeight: 700 }}>Solo: {item.availableDays.map(d => ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'][d]).join(', ')}</p>}
                         <p className="subtitle" style={{ color: 'var(--primary-color)', marginTop: '0.2rem' }}>S/{item.price.toFixed(2)}</p>
                       </div>
-                      <div style={{ backgroundColor: 'var(--surface-hover)', padding: '0.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: availableToday ? 1 : 0.4 }}>
+                      <div style={{ backgroundColor: 'var(--surface-hover)', padding: '0.5rem', borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: (availableToday && !isOutOfStock) ? 1 : 0.4 }}>
                         <Plus size={18} className="text-primary-color" />
                       </div>
                     </div>
@@ -726,23 +763,31 @@ export default function Mozo() {
               {/* Floating "Enviar" Button (Mobile) */}
               {cart.some(c => c.status === 'new') && isMobile && (
                 <button 
-                  className="btn btn-primary animate-fade-in"
+                  className="animate-fade-in"
                   style={{
-                    position: 'absolute',
+                    position: 'fixed',
                     bottom: '24px',
-                    right: '24px',
-                    padding: '1rem 1.5rem',
-                    borderRadius: '30px',
-                    boxShadow: '0 10px 25px -5px rgba(59, 130, 246, 0.5)',
-                    zIndex: 50,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 'calc(100% - 48px)',
+                    maxWidth: '350px',
+                    padding: '1rem',
+                    borderRadius: '99px',
+                    boxShadow: '0 10px 25px -5px rgba(255, 107, 43, 0.5)',
+                    background: 'linear-gradient(135deg, #ff6b2b, #f59e0b)',
+                    border: 'none',
+                    zIndex: 1000,
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'center',
                     gap: '0.5rem',
-                    fontSize: '1.1rem'
+                    fontSize: '1.1rem',
+                    fontWeight: 800,
+                    color: 'white'
                   }}
                   onClick={handleSendOrder}
                 >
-                  🚀 Enviar ({cart.filter(c => c.status === 'new').length})
+                  🚀 Enviar a Cocina ({cart.filter(c => c.status === 'new').length})
                 </button>
               )}
             </div>
